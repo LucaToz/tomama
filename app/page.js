@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Vault from "./components/Vault";
 import Diary from "./components/Diary";
+import { mergeCopy } from "@/lib/copy";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -33,13 +34,14 @@ export default function Home() {
     return (
       <div className={styles.loadingWrap}>
         <div className={styles.spinner} />
-        <p className={styles.loadingText}>caricamento...</p>
+        <p className={styles.loadingText}>{mergeCopy(null).loadingText}</p>
       </div>
     );
   }
 
   const vaultCode = config?.vaultCode || "TOMAMA";
   const songs = config?.songs || [];
+  const copy = mergeCopy(config?.copy);
 
   return (
     <main className={styles.app}>
@@ -52,10 +54,10 @@ export default function Home() {
               : "circle(150% at 50% 50%)",
           }}
         >
-          <Vault vaultCode={vaultCode} onUnlock={handleUnlock} />
+          <Vault vaultCode={vaultCode} copy={copy} onUnlock={handleUnlock} />
         </div>
       )}
-      {unlocked && <Diary songs={songs} />}
+      {unlocked && <Diary songs={songs} copy={copy} />}
     </main>
   );
 }

@@ -7,7 +7,7 @@ import styles from "./Vault.module.css";
 /**
  * Schermata cassaforte. Sblocco = vaultCode prop.
  */
-export default function Vault({ vaultCode, onUnlock }) {
+export default function Vault({ vaultCode, copy, onUnlock }) {
   const [value, setValue] = useState("");
   const [shake, setShake] = useState(false);
   const inputRef = useRef(null);
@@ -30,8 +30,8 @@ export default function Vault({ vaultCode, onUnlock }) {
     <div className={styles.wrap}>
       <div className={styles.grain} />
       <Lock size={28} color="#8a8378" style={{ marginBottom: 24 }} />
-      <p className={styles.eyebrow}>I PEZZI NUOVI NON SONO ANCORA ONLINE</p>
-      <p className={styles.sub}>Se eri lì, lo sai.</p>
+      <p className={styles.eyebrow}>{copy?.vaultEyebrow}</p>
+      <p className={styles.sub}>{copy?.vaultSub}</p>
 
       <div
         className={styles.inputRow}
@@ -42,7 +42,7 @@ export default function Vault({ vaultCode, onUnlock }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="CODICE"
+          placeholder={copy?.vaultPlaceholder || "CODICE"}
           className={styles.input}
           autoCapitalize="characters"
           autoComplete="off"
@@ -53,10 +53,10 @@ export default function Vault({ vaultCode, onUnlock }) {
       </div>
 
       <button onClick={submit} className={styles.btn}>
-        apri
+        {copy?.vaultButton || "apri"}
       </button>
 
-      {shake && <p className={styles.error}>non è quello giusto.</p>}
+      {shake && <p className={styles.error}>{copy?.vaultError}</p>}
     </div>
   );
 }

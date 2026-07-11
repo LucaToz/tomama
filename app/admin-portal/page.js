@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
-import { Lock, Eye, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { DEFAULT_COPY, mergeCopy } from "@/lib/copy";
+import { Lock, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import styles from "./page.module.css";
 
 export default function AdminPortal() {
@@ -13,6 +14,7 @@ export default function AdminPortal() {
   const [loadingSave, setLoadingSave] = useState(false);
   
   const [vaultCode, setVaultCode] = useState("");
+  const [copy, setCopy] = useState({ ...DEFAULT_COPY });
   const [songs, setSongs] = useState([]);
   const [activeSongId, setActiveSongId] = useState(null); // per espandere una canzone alla volta
   const [uploading, setUploading] = useState({ songId: null, field: null });
@@ -40,6 +42,7 @@ export default function AdminPortal() {
       .then((res) => res.json())
       .then((data) => {
         setVaultCode(data.vaultCode || "");
+        setCopy(mergeCopy(data.copy));
         setSongs(data.songs || []);
         setLoadingCheck(false);
       })
@@ -74,6 +77,11 @@ export default function AdminPortal() {
     setAuthenticated(false);
     setSongs([]);
     setVaultCode("");
+    setCopy({ ...DEFAULT_COPY });
+  };
+
+  const updateCopyField = (key, value) => {
+    setCopy((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateSongField = (id, field, value) => {
@@ -143,7 +151,7 @@ export default function AdminPortal() {
       const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vaultCode, songs }),
+        body: JSON.stringify({ vaultCode, copy, songs }),
       });
       const data = await res.json();
       if (data.success) {
@@ -230,6 +238,122 @@ export default function AdminPortal() {
                 className={styles.vaultCodeInput}
               />
               <span className={styles.helpText}>Il codice verrà automaticamente convertito in maiuscolo.</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Testi interfaccia */}
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2>Testi dell&apos;app</h2>
+            <p>Schermata di sblocco, header del diario e sezione finale.</p>
+          </div>
+          <div className={styles.cardBody}>
+            <div className={styles.copyBlock}>
+              <h3 className={styles.copyBlockTitle}>Schermata sblocco</h3>
+              <div className={styles.copyGrid}>
+                <div className={styles.inputGroup}>
+                  <label>Titolo principale</label>
+                  <input
+                    type="text"
+                    value={copy.vaultEyebrow}
+                    onChange={(e) => updateCopyField("vaultEyebrow", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Sottotitolo</label>
+                  <input
+                    type="text"
+                    value={copy.vaultSub}
+                    onChange={(e) => updateCopyField("vaultSub", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Placeholder codice</label>
+                  <input
+                    type="text"
+                    value={copy.vaultPlaceholder}
+                    onChange={(e) => updateCopyField("vaultPlaceholder", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Pulsante</label>
+                  <input
+                    type="text"
+                    value={copy.vaultButton}
+                    onChange={(e) => updateCopyField("vaultButton", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Messaggio errore</label>
+                  <input
+                    type="text"
+                    value={copy.vaultError}
+                    onChange={(e) => updateCopyField("vaultError", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.copyBlock}>
+              <h3 className={styles.copyBlockTitle}>Header diario</h3>
+              <div className={styles.copyGrid}>
+                <div className={styles.inputGroup}>
+                  <label>Timbro</label>
+                  <input
+                    type="text"
+                    value={copy.diaryStamp}
+                    onChange={(e) => updateCopyField("diaryStamp", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Nome band</label>
+                  <input
+                    type="text"
+                    value={copy.diaryBand}
+                    onChange={(e) => updateCopyField("diaryBand", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Sottotitolo</label>
+                  <input
+                    type="text"
+                    value={copy.diarySub}
+                    onChange={(e) => updateCopyField("diarySub", e.target.value)}
+                  />
+                  <span className={styles.helpText}>Usa {"{count}"} per il numero di pezzi.</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.copyBlock}>
+              <h3 className={styles.copyBlockTitle}>Fine diario</h3>
+              <div className={styles.copyGrid}>
+                <div className={styles.inputGroup}>
+                  <label>Titolo sezione player</label>
+                  <input
+                    type="text"
+                    value={copy.playlistTitle}
+                    onChange={(e) => updateCopyField("playlistTitle", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Nota footer</label>
+                  <input
+                    type="text"
+                    value={copy.diaryFooter}
+                    onChange={(e) => updateCopyField("diaryFooter", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Testo caricamento</label>
+                  <input
+                    type="text"
+                    value={copy.loadingText}
+                    onChange={(e) => updateCopyField("loadingText", e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>

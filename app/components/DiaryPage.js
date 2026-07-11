@@ -128,7 +128,7 @@ export default function DiaryPage({
     <motion.section
       id={`pezzo-${song.id}`}
       className={styles.section}
-      onViewportEnter={() => onEnterSection(song.id)}
+      onViewportEnter={() => onEnterSection(song)}
       viewport={{ once: false, amount: 0.25 }}
     >
       {/* sfondo sfocato: sticky full-viewport, opacità legata allo scroll intro */}

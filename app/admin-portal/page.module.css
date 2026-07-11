@@ -216,6 +216,47 @@
   padding: 24px;
 }
 
+.cardBody input[type="text"] {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 12px 14px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  width: 100%;
+}
+
+.cardBody input[type="text"]:focus {
+  background: #f5f5f5;
+}
+
+.copyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.copyBlock + .copyBlock {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 2px solid #000;
+}
+
+.copyBlockTitle {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.copyGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .inputGroup {
   display: flex;
   flex-direction: column;
