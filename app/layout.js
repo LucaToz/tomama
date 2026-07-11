@@ -1,7 +1,9 @@
 import "./globals.css";
 import { permanentMarker, specialElite, jetBrainsMono, rubikDistressed } from "./fonts";
+import { getSiteUrl } from "@/lib/site";
 
 export const metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "Tomama — pezzi nuovi",
   description: "I pezzi nuovi non sono ancora online. Se eri lì, lo sai.",
 };

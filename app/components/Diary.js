@@ -41,6 +41,15 @@ export default function Diary({ songs = [], copy = {} }) {
     setPlayingId((cur) => (cur !== null && cur !== song.id ? null : cur));
   }, []);
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#pezzo-")) return;
+    const el = document.querySelector(hash);
+    if (el) {
+      requestAnimationFrame(() => el.scrollIntoView({ behavior: "smooth" }));
+    }
+  }, [songs]);
+
   return (
     <div className={styles.wrap}>
       <audio ref={audioRef} preload="none" className={styles.hiddenAudio} />
@@ -56,6 +65,7 @@ export default function Diary({ songs = [], copy = {} }) {
           key={song.id}
           song={song}
           index={i}
+          isFirst={i === 0}
           isPlaying={playingId === song.id}
           onTogglePlay={togglePlay}
           onEnterSection={handleEnterSection}

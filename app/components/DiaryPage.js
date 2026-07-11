@@ -25,9 +25,21 @@ const LYRICS_PEEK_HEIGHT = 88;
 const LYRICS_REVEAL_VH_MIN = 140;
 const LYRICS_REVEAL_VH_MAX = 240;
 
+async function fetchCoverFile(photoSrc, songId) {
+  const src = photoSrc.startsWith("http")
+    ? photoSrc
+    : `${window.location.origin}${photoSrc.startsWith("/") ? photoSrc : `/${photoSrc}`}`;
+  const res = await fetch(src);
+  if (!res.ok) throw new Error("cover fetch failed");
+  const blob = await res.blob();
+  const ext = blob.type.split("/")[1] || "jpg";
+  return new File([blob], `tomama-${songId}.${ext}`, { type: blob.type || "image/jpeg" });
+}
+
 export default function DiaryPage({
   song,
   index,
+  isFirst = false,
   isPlaying,
   onTogglePlay,
   onEnterSection,
@@ -108,26 +120,38 @@ export default function DiaryPage({
   const typing = charCount > 0 && charCount < song.punchline.length;
 
   const share = async () => {
-    const base =
-      typeof window !== "undefined" ? window.location.href.split("#")[0] : "";
-    const url = `${base}#pezzo-${song.id}`;
-    if (navigator.share) {
+    const url = `${window.location.origin}/pezzo/${song.id}`;
+    const shareData = { title: `Tomama — ${song.title}`, url };
+
+    if (song.photo && navigator.canShare) {
       try {
-        await navigator.share({ title: `Tomama — ${song.title}`, url });
-      } catch (_) {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1800);
+        const file = await fetchCoverFile(song.photo, song.id);
+        const withFiles = { ...shareData, files: [file] };
+        if (navigator.canShare(withFiles)) {
+          await navigator.share(withFiles);
+          return;
+        }
       } catch (_) {}
     }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (_) {}
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_) {}
   };
 
   return (
     <motion.section
       id={`pezzo-${song.id}`}
-      className={styles.section}
+      className={`${styles.section}${isFirst ? ` ${styles.sectionFirst}` : ""}`}
       onViewportEnter={() => onEnterSection(song)}
       viewport={{ once: false, amount: 0.25 }}
     >

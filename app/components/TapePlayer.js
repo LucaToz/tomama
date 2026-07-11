@@ -9,7 +9,7 @@ import styles from "./TapePlayer.module.css";
  */
 export default function TapePlayer({ song, isPlaying, onToggle }) {
   return (
-    <div className={styles.tape}>
+    <div className={`${styles.tape} ${isPlaying ? styles.tapePlaying : ""}`}>
       <button
         onClick={() => onToggle(song)}
         className={styles.btn}
@@ -18,15 +18,17 @@ export default function TapePlayer({ song, isPlaying, onToggle }) {
         {isPlaying ? <Pause size={16} /> : <Play size={16} />}
       </button>
 
-      <div className={styles.bars}>
+      <div className={styles.reels} aria-hidden="true">
+        <span className={`${styles.reel} ${isPlaying ? styles.reelSpin : ""}`} />
+        <span className={`${styles.reel} ${isPlaying ? styles.reelSpin : ""}`} />
+      </div>
+
+      <div className={`${styles.bars} ${isPlaying ? styles.barsPlaying : ""}`}>
         {Array.from({ length: 14 }).map((_, i) => (
           <span
             key={i}
             className={styles.bar}
-            style={{
-              animationPlayState: isPlaying ? "running" : "paused",
-              animationDelay: `${i * 0.08}s`,
-            }}
+            style={{ animationDelay: `${i * 0.07}s` }}
           />
         ))}
       </div>

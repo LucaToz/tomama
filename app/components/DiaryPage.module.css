@@ -4,6 +4,11 @@
   isolation: isolate;
 }
 
+.sectionFirst {
+  margin-top: -8px;
+  border-top: none;
+}
+
 /* sfondo sfocato: sticky, sempre full viewport mentre scorri il pezzo */
 .blurBg {
   position: sticky;
@@ -124,6 +129,15 @@
   margin-top: -84px;
 }
 
+.sectionFirst .intro {
+  margin-top: -96px;
+}
+
+.sectionFirst .coverFull {
+  align-items: flex-start;
+  padding-top: 8px;
+}
+
 .introSticky {
   position: sticky;
   top: 0;
@@ -208,10 +222,10 @@
 
 .photo2 {
   position: relative;
-  width: min(62vw, 230px);
+  width: min(78vw, 310px);
   margin: 0 auto 7vh;
   background: #fff;
-  padding: 10px 10px 26px;
+  padding: 12px 12px 30px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
 }
 
