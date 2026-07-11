@@ -2,7 +2,32 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { put } from "@vercel/blob";
+import { handleUpload } from "@vercel/blob/client";
 import { isAuthenticated } from "@/lib/auth";
+
+const IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+];
+const AUDIO_TYPES = [
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/wav",
+  "audio/ogg",
+  "audio/aac",
+  "audio/flac",
+  "audio/x-wav",
+];
+const ALLOWED_TYPES = [...IMAGE_TYPES, ...AUDIO_TYPES];
+
+export async function GET() {
+  return NextResponse.json({
+    blobEnabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+  });
+}
 
 export async function POST(req) {
   try {
@@ -11,6 +36,36 @@ export async function POST(req) {
       return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
     }
 
+    const contentType = req.headers.get("content-type") || "";
+
+    // Client upload (Vercel Blob) — bypassa il limite 4.5 MB delle serverless
+    if (contentType.includes("application/json")) {
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        return NextResponse.json(
+          {
+            error:
+              "Blob store non configurato. Su Vercel: Storage → crea un Blob store e collegalo al progetto.",
+          },
+          { status: 503 }
+        );
+      }
+
+      const body = await req.json();
+      const jsonResponse = await handleUpload({
+        body,
+        request: req,
+        onBeforeGenerateToken: async () => ({
+          allowedContentTypes: ALLOWED_TYPES,
+          maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
+          addRandomSuffix: true,
+        }),
+        onUploadCompleted: async () => {},
+      });
+
+      return NextResponse.json(jsonResponse);
+    }
+
+    // Fallback server-side (solo locale / senza Blob)
     const formData = await req.formData();
     const file = formData.get("file");
     if (!file) {
@@ -20,7 +75,6 @@ export async function POST(req) {
     const filename = file.name;
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Se c'è il token di Vercel Blob in ENV, carichiamo lì
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const blob = await put(`uploads/${Date.now()}-${filename}`, buffer, {
         access: "public",
@@ -29,25 +83,29 @@ export async function POST(req) {
       return NextResponse.json({ url: blob.url });
     }
 
-    // Altrimenti, fallback locale nella cartella public/uploads
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        {
+          error:
+            "Upload non disponibile: manca BLOB_READ_WRITE_TOKEN. Collega un Blob store al progetto Vercel.",
+        },
+        { status: 503 }
+      );
+    }
+
     const uploadsDir = join(process.cwd(), "public", "uploads");
     try {
       await fs.mkdir(uploadsDir, { recursive: true });
     } catch (_) {}
 
-    // Rende il nome sicuro ed univoco per evitare collisioni in locale
     const safeName = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
     const filePath = join(uploadsDir, safeName);
-    
+
     await fs.writeFile(filePath, new Uint8Array(buffer));
-    
+
     return NextResponse.json({ url: `/uploads/${safeName}` });
   } catch (err) {
+    console.error("Upload error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-export const config = {
-  api: {
-    bodyParser: false, // Per Next.js Pages router, ma in App Router si ignora. Lo lasciamo per sicurezza o non serve
-  },
-};

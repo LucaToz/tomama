@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
 import TapePlayer from "./TapePlayer";
@@ -21,6 +21,8 @@ import styles from "./DiaryPage.module.css";
      e RESTANO visibili, impilati senza sovrapporsi.
 */
 const INTRO_VH = 165;
+const LYRICS_PEEK_HEIGHT = 88; // ~3 righe visibili all'inizio
+const LYRICS_REVEAL_VH = 130; // distanza scroll per svelare tutto il testo
 
 export default function DiaryPage({
   song,
@@ -56,15 +58,29 @@ export default function DiaryPage({
   /* hint "scorri" */
   const hintOpacity = useTransform(scrollYProgress, [0, 0.06], [1, 0]);
 
-  /* FASE 5: Srotolamento foglietto legato allo scroll */
-  const sheetRef = useRef(null);
-  const { scrollYProgress: sheetScroll } = useScroll({
-    target: sheetRef,
-    offset: ["start end", "end 0.95"],
+  /* FASE 5: testo che si svela a accordion mentre scorri */
+  const sheetScrollRef = useRef(null);
+  const lyricsRef = useRef(null);
+  const [lyricsFullHeight, setLyricsFullHeight] = useState(LYRICS_PEEK_HEIGHT);
+
+  useLayoutEffect(() => {
+    if (lyricsRef.current) {
+      setLyricsFullHeight(lyricsRef.current.scrollHeight);
+    }
+  }, [song.lyrics]);
+
+  const { scrollYProgress: revealProgress } = useScroll({
+    target: sheetScrollRef,
+    offset: ["start start", "end end"],
   });
-  const sheetScaleY = useTransform(sheetScroll, [0, 0.85], [0.3, 1]);
-  const sheetOpacity = useTransform(sheetScroll, [0, 0.4], [0.2, 1]);
-  const sheetY = useTransform(sheetScroll, [0, 0.85], [-12, 0]);
+
+  const lyricsMaxHeight = useTransform(
+    revealProgress,
+    [0, 1],
+    [LYRICS_PEEK_HEIGHT, lyricsFullHeight]
+  );
+  const shareOpacity = useTransform(revealProgress, [0.82, 1], [0, 1]);
+  const lyricsFadeOpacity = useTransform(revealProgress, [0, 0.15, 0.85, 1], [1, 1, 0.4, 0]);
 
   /* punchline a macchina da scrivere, quando entra in vista */
   const startTyping = useCallback(() => {
@@ -201,33 +217,45 @@ export default function DiaryPage({
             </p>
           </motion.div>
 
-          {/* FASE 5 — foglietto con nastro adesivo che si srotola dall'alto */}
-          <motion.div
-            ref={sheetRef}
-            className={styles.sheet}
-            style={{
-              scaleY: sheetScaleY,
-              opacity: sheetOpacity,
-              y: sheetY,
-            }}
+          {/* FASE 5 — foglietto: il testo si svela a accordion mentre scorri */}
+          <div
+            ref={sheetScrollRef}
+            className={styles.sheetScrollTrack}
+            style={{ height: `${LYRICS_REVEAL_VH}vh` }}
           >
-            <div className={styles.tapeLeft} />
-            <div className={styles.tapeRight} />
-            <div className={styles.sheetInner}>
-              <p className={styles.lyrics}>{song.lyrics}</p>
-              <button onClick={share} className={styles.shareBtn}>
-                {copied ? (
-                  <>
-                    <Check size={13} /> link copiato
-                  </>
-                ) : (
-                  <>
-                    <Share2 size={13} /> condividi questo pezzo
-                  </>
-                )}
-              </button>
+            <div className={styles.sheet}>
+              <div className={styles.tapeLeft} />
+              <div className={styles.tapeRight} />
+              <div className={styles.sheetInner}>
+                <motion.div
+                  className={styles.lyricsReveal}
+                  style={{ maxHeight: lyricsMaxHeight }}
+                >
+                  <p ref={lyricsRef} className={styles.lyrics}>
+                    {song.lyrics}
+                  </p>
+                  <motion.div
+                    className={styles.lyricsFade}
+                    style={{ opacity: lyricsFadeOpacity }}
+                    aria-hidden="true"
+                  />
+                </motion.div>
+                <motion.div style={{ opacity: shareOpacity }}>
+                  <button onClick={share} className={styles.shareBtn}>
+                    {copied ? (
+                      <>
+                        <Check size={13} /> link copiato
+                      </>
+                    ) : (
+                      <>
+                        <Share2 size={13} /> condividi questo pezzo
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </motion.section>

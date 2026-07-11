@@ -243,19 +243,40 @@
   margin-left: 2px;
 }
 
-/* ---------- FOGLIETTO ---------- */
-.sheet {
+/* ---------- FOGLIETTO (accordion scroll) ---------- */
+.sheetScrollTrack {
   position: relative;
+}
+
+.sheet {
+  position: sticky;
+  top: 16vh;
+  top: 16svh;
   max-width: 520px;
   margin: 0 auto;
   background: var(--paper-2);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
   border: 1px solid #e3d9bd;
-  transform-origin: top center;
 }
 
 .sheetInner {
   padding: 22px 18px 16px;
+}
+
+.lyricsReveal {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.lyricsFade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36px;
+  background: linear-gradient(to bottom, transparent, var(--paper-2));
+  pointer-events: none;
 }
 
 .tapeLeft,
@@ -282,7 +303,7 @@
   line-height: 1.75;
   color: var(--ink-soft);
   white-space: pre-wrap;
-  margin: 0 0 12px;
+  margin: 0;
 }
 
 .shareBtn {

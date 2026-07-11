@@ -86,24 +86,44 @@ export default function AdminPortal() {
     if (!file) return;
 
     setUploading({ songId, field });
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (data.url) {
-        updateSongField(songId, field, data.url);
+      let url;
+
+      const modeRes = await fetch("/api/upload");
+      const { blobEnabled } = await modeRes.json();
+
+      if (blobEnabled) {
+        const { upload } = await import("@vercel/blob/client");
+        const blob = await upload(`uploads/${Date.now()}-${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        url = blob.url;
       } else {
-        alert(`Errore di caricamento: ${data.error || "Errore sconosciuto"}`);
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Errore di caricamento");
+        }
+        url = data.url;
+      }
+
+      if (url) {
+        updateSongField(songId, field, url);
+      } else {
+        alert("Errore di caricamento: risposta senza URL");
       }
     } catch (err) {
       alert(`Errore durante l'upload: ${err.message}`);
     } finally {
       setUploading({ songId: null, field: null });
+      e.target.value = "";
     }
   };
 
