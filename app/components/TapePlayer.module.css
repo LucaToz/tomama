@@ -1,0 +1,43 @@
+.tape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  border-radius: 20px;
+  padding: 8px 14px;
+  width: fit-content;
+}
+
+.btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+}
+
+.bar {
+  width: 2px;
+  height: 4px;
+  background: var(--paper);
+  display: inline-block;
+  animation: barDance 0.9s ease-in-out infinite;
+}
+
+.duration {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: #c9c2b3;
+}

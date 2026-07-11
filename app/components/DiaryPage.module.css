@@ -1,0 +1,299 @@
+.section {
+  position: relative;
+  border-top: 1px dashed var(--dash);
+}
+
+/* sfondo sfocato e colorato della cover: sticky, resta dietro tutto il pezzo */
+.blurBg {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.blurBgInner {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(26px) saturate(1.28);
+  transform: scale(1.18);
+  transform-origin: center;
+}
+
+/* contenitore del pezzo, tirato su sopra allo sfondo sticky */
+.songInner {
+  position: relative;
+  z-index: 1;
+  margin-top: -100vh;
+  margin-top: -100svh;
+}
+
+/* ---------- HEADER GLASS STICKY ---------- */
+.stickyHeader {
+  position: sticky;
+  top: 10px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 12px 0;
+  padding: 10px 14px;
+  border-radius: 18px;
+  /* liquid glass */
+  background: rgba(243, 236, 218, 0.42);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 28px rgba(31, 27, 22, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.headerPolaroid {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  background: #fff;
+  padding: 5px 5px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.headerPolaroid img {
+  width: 100%;
+  height: 52px;
+  object-fit: cover;
+}
+
+.placeholderMini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  background: #e8e0c9;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: var(--muted-2);
+}
+
+.washiMini {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  width: 34px;
+  height: 13px;
+  background: var(--washi);
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.index {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--accent);
+  display: block;
+}
+
+.title {
+  font-family: var(--f-rubik);
+  font-size: 21px; /* leggermente più grande per compensare lo stile distressed */
+  margin: 1px 0 8px;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* ---------- INTRO PINNATA ---------- */
+.intro {
+  position: relative;
+  /* l'header sticky occupa spazio in cima: recuperiamolo così l'intro
+     parte comunque a tutto schermo */
+  margin-top: -84px;
+}
+
+.introSticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.coverFull {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.coverPolaroid {
+  background: #fff;
+  padding: 12px 12px 30px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.26);
+  width: min(78vw, 330px);
+}
+
+.coverPhoto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e8e0c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.coverPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  letter-spacing: 1px;
+}
+
+.washi {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 70px;
+  height: 24px;
+  background: var(--washi);
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  z-index: 4;
+  pointer-events: none;
+  animation: hintBounce 1.6s ease-in-out infinite;
+}
+
+/* ---------- CORPO (appaiono e restano) ---------- */
+.body {
+  position: relative;
+  z-index: 1;
+  padding: 8px 22px 48px;
+}
+
+.photo2 {
+  position: relative;
+  width: min(62vw, 230px);
+  margin: 2vh auto 9vh;
+  background: #fff;
+  padding: 10px 10px 26px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.washiRed {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 54px;
+  height: 20px;
+  background: rgba(200, 29, 61, 0.5);
+}
+
+.punchLayer {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 10vh;
+}
+
+.punchline {
+  font-family: var(--f-elite);
+  font-size: clamp(20px, 5vw, 26px); /* ridotto leggermente per adattarsi allo stile a macchina da scrivere */
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: center;
+  margin: 0;
+  max-width: 460px;
+}
+
+.quote {
+  color: var(--accent);
+  margin-right: 2px;
+}
+
+.typeCursor {
+  color: var(--accent);
+  margin-left: 2px;
+}
+
+/* ---------- FOGLIETTO ---------- */
+.sheet {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--paper-2);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e3d9bd;
+  transform-origin: top center;
+}
+
+.sheetInner {
+  padding: 22px 18px 16px;
+}
+
+.tapeLeft,
+.tapeRight {
+  position: absolute;
+  top: -9px;
+  width: 46px;
+  height: 17px;
+  background: var(--washi-strong);
+  z-index: 2;
+}
+.tapeLeft {
+  left: 20px;
+  transform: rotate(-4deg);
+}
+.tapeRight {
+  right: 20px;
+  transform: rotate(3deg);
+}
+
+.lyrics {
+  font-family: var(--f-elite);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  margin: 0 0 12px;
+}
+
+.shareBtn {
+  background: none;
+  border: 1px solid var(--dash);
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--muted);
+}

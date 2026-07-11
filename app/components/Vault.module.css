@@ -1,0 +1,81 @@
+.wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.grain {
+  position: absolute;
+  inset: -20px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 3px 3px;
+  animation: grain 6s steps(2) infinite;
+  pointer-events: none;
+}
+
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 6px;
+}
+
+.sub {
+  font-family: var(--f-caveat);
+  font-size: 22px;
+  color: #c9c2b3;
+  margin: 0 0 40px;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #3a352c;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+}
+
+.input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--paper);
+  font-family: var(--f-mono);
+  font-size: 24px;
+  letter-spacing: 6px;
+  text-align: center;
+  width: 220px;
+  max-width: 60vw;
+}
+
+.cursor {
+  color: var(--accent);
+  font-size: 24px;
+  margin-left: 2px;
+  animation: blinkCursor 1s step-end infinite;
+}
+
+.btn {
+  background: none;
+  border: 1px solid #3a352c;
+  color: #c9c2b3;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 10px 28px;
+  border-radius: 2px;
+}
+
+.error {
+  margin-top: 16px;
+  color: var(--accent);
+  font-family: var(--f-caveat);
+  font-size: 18px;
+}

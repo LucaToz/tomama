@@ -1,0 +1,82 @@
+:root {
+  /* Palette */
+  --paper: #f3ecda;
+  --paper-2: #fbf7ec;
+  --ink: #1f1b16;
+  --ink-soft: #4a443a;
+  --muted: #8a8378;
+  --muted-2: #a89f88;
+  --dash: #d4c9ab;
+  --accent: #c81d3d;
+  --washi: rgba(232, 185, 35, 0.65);
+  --washi-strong: rgba(232, 185, 35, 0.75);
+
+  /* Fonts (i --font-* arrivano da next/font in layout.js) */
+  --f-marker: var(--font-marker), cursive;
+  --f-rubik: var(--font-rubik), display;
+  --f-caveat: var(--font-caveat), cursive;
+  --f-elite: var(--font-elite), monospace;
+  --f-mono: var(--font-mono), monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-elite);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* niente scroll orizzontale su mobile.
+   Solo su <body> con `clip`: su <html> romperebbe il tracking scroll di
+   Framer (useScroll/whileInView). Lo sfondo sfocato viene contenuto nel
+   suo contenitore (overflow:hidden) per non sforare, vedi DiaryPage. */
+body {
+  overflow-x: clip;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* --- keyframes condivisi --- */
+@keyframes shakeCode {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+@keyframes blinkCursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2%, 2%); }
+}
+@keyframes barDance {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+@keyframes stampIn {
+  0% { transform: scale(2.2) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(0.95) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+@keyframes hintBounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 4px); }
+}

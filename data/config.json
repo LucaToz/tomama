@@ -1,0 +1,95 @@
+{
+  "vaultCode": "180726",
+  "songs": [
+    {
+      "id": 1,
+      "title": "Antologia Rurale",
+      "photo": "/songs/song1.jpg",
+      "photo2": "/uploads/1783781671129-WhatsApp_Image_2026-07-11_at_12.13.26.jpeg",
+      "punchline": "lavorare tanto, sognare il giusto",
+      "lyrics": "Chiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nÈ ora tempo di finirla di fare gli americani,\nme lo dicevan spesso da bamboccio.\n\nCrapa da marmo,\nMica de coccio.\n\nCampari, nebbia, palloncini e paranoia.\nIgnaro del tempo che vi ascorreva.\n\nChiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nAbituati a lavorar tanto e sognare il giusto.\nHai vissuto un anno, ma è passato un lustro.\nSono la persona giusta. Sono quello che cerchi.\nCercando la quadratura di più e più cerchi.\n\nIgnaro del tempo che via mi scorre.\n\nChiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nAbituati a lavorar tanto e sognare il giusto.\nHai vissuto un anno, ma è passato un lustro.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 2,
+      "title": "Pezzo 2 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 3,
+      "title": "Pezzo 3 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 4,
+      "title": "Pezzo 4 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 5,
+      "title": "Pezzo 5 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 6,
+      "title": "Pezzo 6 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 7,
+      "title": "Pezzo 7 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 8,
+      "title": "Pezzo 8 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    },
+    {
+      "id": 9,
+      "title": "Pezzo 9 — TITOLO QUI",
+      "photo": null,
+      "photo2": null,
+      "punchline": "PUNCHLINE QUI",
+      "lyrics": "TESTO COMPLETO QUI.",
+      "audioSrc": null,
+      "duration": "—:—"
+    }
+  ]
+}

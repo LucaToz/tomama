@@ -1,0 +1,77 @@
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+}
+
+.header {
+  padding: 56px 24px 40px;
+  text-align: center;
+  position: relative;
+}
+
+.stamp {
+  display: inline-block;
+  font-family: var(--f-marker);
+  color: var(--accent);
+  border: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  transform: rotate(-8deg);
+  margin-bottom: 18px;
+  animation: stampIn 0.5s ease-out;
+}
+
+.band {
+  font-family: var(--f-rubik);
+  font-size: 52px;
+  margin: 0;
+  color: var(--ink);
+}
+
+.sub {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 10px;
+  letter-spacing: 0.5px;
+}
+
+.footer {
+  text-align: center;
+  padding: 48px 24px 0;
+  border-top: 1px dashed var(--dash);
+  margin-top: 20px;
+}
+
+.footerHint {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.progress {
+  color: var(--accent);
+}
+
+.downloadBtn {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 24px;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+
+.note {
+  font-family: var(--f-caveat);
+  font-size: 18px;
+  color: var(--muted);
+  margin-top: 20px;
+}

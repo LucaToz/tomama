@@ -1,0 +1,428 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Lock, Eye, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import styles from "./page.module.css";
+
+export default function AdminPortal() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loadingCheck, setLoadingCheck] = useState(true);
+  const [loadingSave, setLoadingSave] = useState(false);
+  
+  const [vaultCode, setVaultCode] = useState("");
+  const [songs, setSongs] = useState([]);
+  const [activeSongId, setActiveSongId] = useState(null); // per espandere una canzone alla volta
+  const [uploading, setUploading] = useState({ songId: null, field: null });
+  const [saveStatus, setSaveStatus] = useState({ success: null, message: "" });
+
+  // Controlla se la sessione admin è già attiva
+  useEffect(() => {
+    fetch("/api/admin/check")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) {
+          setAuthenticated(true);
+          loadConfig();
+        } else {
+          setLoadingCheck(false);
+        }
+      })
+      .catch(() => {
+        setLoadingCheck(false);
+      });
+  }, []);
+
+  const loadConfig = () => {
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data) => {
+        setVaultCode(data.vaultCode || "");
+        setSongs(data.songs || []);
+        setLoadingCheck(false);
+      })
+      .catch(() => {
+        setLoadingCheck(false);
+      });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuthenticated(true);
+        loadConfig();
+      } else {
+        setLoginError(data.error || "Password non corretta");
+      }
+    } catch (err) {
+      setLoginError("Errore durante la connessione al server");
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setAuthenticated(false);
+    setSongs([]);
+    setVaultCode("");
+  };
+
+  const updateSongField = (id, field, value) => {
+    setSongs((prevSongs) =>
+      prevSongs.map((s) => (s.id === id ? { ...s, [field]: value } : s))
+    );
+  };
+
+  const handleFileUpload = async (songId, field, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading({ songId, field });
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        updateSongField(songId, field, data.url);
+      } else {
+        alert(`Errore di caricamento: ${data.error || "Errore sconosciuto"}`);
+      }
+    } catch (err) {
+      alert(`Errore durante l'upload: ${err.message}`);
+    } finally {
+      setUploading({ songId: null, field: null });
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setLoadingSave(true);
+    setSaveStatus({ success: null, message: "" });
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vaultCode, songs }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSaveStatus({ success: true, message: "Configurazione salvata con successo!" });
+        setTimeout(() => setSaveStatus({ success: null, message: "" }), 3000);
+      } else {
+        setSaveStatus({ success: false, message: `Errore nel salvataggio: ${data.error}` });
+      }
+    } catch (err) {
+      setSaveStatus({ success: false, message: `Errore di connessione: ${err.message}` });
+    } finally {
+      setLoadingSave(false);
+    }
+  };
+
+  if (loadingCheck) {
+    return (
+      <div className={styles.adminLoading}>
+        <div className={styles.spinner} />
+        <p>verifica autorizzazione...</p>
+      </div>
+    );
+  }
+
+  // Schermata di Login
+  if (!authenticated) {
+    return (
+      <div className={styles.loginWrap}>
+        <div className={styles.loginCard}>
+          <div className={styles.loginHeader}>
+            <Lock size={32} className={styles.lockIcon} />
+            <h1>Tomama Diario Admin</h1>
+            <p>Accesso riservato. Inserisci la password.</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className={styles.loginForm}>
+            <input
+              type="password"
+              placeholder="PASSWORD DI ACCESSO"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={styles.passwordInput}
+              autoFocus
+            />
+            {loginError && <p className={styles.loginError}>{loginError}</p>}
+            <button type="submit" className={styles.loginBtn}>
+              Accedi
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard Principale
+  return (
+    <div className={styles.adminLayout}>
+      <header className={styles.header}>
+        <div className={styles.headerTitle}>
+          <h1>Tomama</h1>
+          <span>Control Panel</span>
+        </div>
+        <button onClick={handleLogout} className={styles.logoutBtn} title="Esci">
+          <LogOut size={16} /> Esci
+        </button>
+      </header>
+
+      <main className={styles.mainContent}>
+        {/* Sezione Cassaforte */}
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2>Cassaforte</h2>
+            <p>Imposta il codice necessario per sbloccare il diario dal frontend.</p>
+          </div>
+          <div className={styles.cardBody}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="vaultCode">Codice di Sblocco</label>
+              <input
+                id="vaultCode"
+                type="text"
+                value={vaultCode}
+                onChange={(e) => setVaultCode(e.target.value.toUpperCase())}
+                placeholder="TOMAMA"
+                className={styles.vaultCodeInput}
+              />
+              <span className={styles.helpText}>Il codice verrà automaticamente convertito in maiuscolo.</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Sezione Canzoni */}
+        <section className={styles.songsSection}>
+          <div className={styles.sectionHeader}>
+            <h2>I 9 Pezzi</h2>
+            <p>Gestisci immagini, file audio e testi per ciascuna canzone.</p>
+          </div>
+
+          <div className={styles.songsList}>
+            {songs.map((song, index) => {
+              const isExpanded = activeSongId === song.id;
+              return (
+                <div key={song.id} className={`${styles.songCard} ${isExpanded ? styles.expanded : ""}`}>
+                  {/* Intestazione Traccia */}
+                  <div 
+                    onClick={() => setActiveSongId(isExpanded ? null : song.id)}
+                    className={styles.songCardHeader}
+                  >
+                    <div className={styles.songTitleArea}>
+                      <span className={styles.songIndex}>#{String(index + 1).padStart(2, "0")}</span>
+                      <h3>{song.title || `Traccia ${song.id} (Senza titolo)`}</h3>
+                    </div>
+                    <div className={styles.songHeaderIcons}>
+                      {song.audioSrc ? <Music size={14} className={styles.indicatorActive} /> : <Music size={14} className={styles.indicatorInactive} />}
+                      {song.photo ? <ImageIcon size={14} className={styles.indicatorActive} /> : <ImageIcon size={14} className={styles.indicatorInactive} />}
+                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </div>
+                  </div>
+
+                  {/* Dettaglio Campi Modificabili */}
+                  {isExpanded && (
+                    <div className={styles.songCardBody}>
+                      <div className={styles.row}>
+                        <div className={styles.inputGroup}>
+                          <label>Titolo Brano</label>
+                          <input
+                            type="text"
+                            value={song.title || ""}
+                            onChange={(e) => updateSongField(song.id, "title", e.target.value)}
+                            placeholder="Titolo del pezzo"
+                          />
+                        </div>
+                        <div className={styles.inputGroup}>
+                          <label>Durata (es. "2:41")</label>
+                          <input
+                            type="text"
+                            value={song.duration || ""}
+                            onChange={(e) => updateSongField(song.id, "duration", e.target.value)}
+                            placeholder="Durata"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Cover Photo */}
+                      <div className={styles.fileFieldRow}>
+                        <div className={styles.inputGroup}>
+                          <label>Foto Copertina (Polaroid 1)</label>
+                          <div className={styles.fileInputWrapper}>
+                            <input
+                              type="text"
+                              value={song.photo || ""}
+                              onChange={(e) => updateSongField(song.id, "photo", e.target.value)}
+                              placeholder="/songs/song1.jpg o URL"
+                              className={styles.urlInput}
+                            />
+                            <label className={styles.uploadBtnLabel}>
+                              Scegli File
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(song.id, "photo", e)}
+                                className={styles.hiddenFileInput}
+                              />
+                            </label>
+                          </div>
+                          {uploading.songId === song.id && uploading.field === "photo" && (
+                            <p className={styles.uploadingText}>Caricamento in corso...</p>
+                          )}
+                        </div>
+                        {song.photo && (
+                          <div className={styles.previewContainer}>
+                            <img src={song.photo} alt="Preview cover" className={styles.thumbnail} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Second Photo */}
+                      <div className={styles.fileFieldRow}>
+                        <div className={styles.inputGroup}>
+                          <label>Seconda Foto (Polaroid 2)</label>
+                          <div className={styles.fileInputWrapper}>
+                            <input
+                              type="text"
+                              value={song.photo2 || ""}
+                              onChange={(e) => updateSongField(song.id, "photo2", e.target.value)}
+                              placeholder="/songs/song1-photo2.jpg o URL"
+                              className={styles.urlInput}
+                            />
+                            <label className={styles.uploadBtnLabel}>
+                              Scegli File
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(song.id, "photo2", e)}
+                                className={styles.hiddenFileInput}
+                              />
+                            </label>
+                          </div>
+                          {uploading.songId === song.id && uploading.field === "photo2" && (
+                            <p className={styles.uploadingText}>Caricamento in corso...</p>
+                          )}
+                        </div>
+                        {song.photo2 && (
+                          <div className={styles.previewContainer}>
+                            <img src={song.photo2} alt="Preview photo 2" className={styles.thumbnail} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Audio File */}
+                      <div className={styles.fileFieldRow}>
+                        <div className={styles.inputGroup}>
+                          <label>File Audio (WAV/MP3)</label>
+                          <div className={styles.fileInputWrapper}>
+                            <input
+                              type="text"
+                              value={song.audioSrc || ""}
+                              onChange={(e) => updateSongField(song.id, "audioSrc", e.target.value)}
+                              placeholder="URL sorgente audio"
+                              className={styles.urlInput}
+                            />
+                            <label className={styles.uploadBtnLabel}>
+                              Scegli File
+                              <input
+                                type="file"
+                                accept="audio/*"
+                                onChange={(e) => handleFileUpload(song.id, "audioSrc", e)}
+                                className={styles.hiddenFileInput}
+                              />
+                            </label>
+                          </div>
+                          {uploading.songId === song.id && uploading.field === "audioSrc" && (
+                            <p className={styles.uploadingText}>Caricamento in corso...</p>
+                          )}
+                        </div>
+                        {song.audioSrc && (
+                          <div className={styles.previewAudioContainer}>
+                            <audio controls src={song.audioSrc} className={styles.audioPreviewPlayer} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Punchline */}
+                      <div className={styles.inputGroup}>
+                        <label>Testo Punchline (Frase a macchina da scrivere)</label>
+                        <input
+                          type="text"
+                          value={song.punchline || ""}
+                          onChange={(e) => updateSongField(song.id, "punchline", e.target.value)}
+                          placeholder="es. lavorare tanto, sognare il giusto"
+                        />
+                      </div>
+
+                      {/* Lyrics */}
+                      <div className={styles.inputGroup}>
+                        <label>Testo Completo (Lyrics)</label>
+                        <textarea
+                          rows={6}
+                          value={song.lyrics || ""}
+                          onChange={(e) => updateSongField(song.id, "lyrics", e.target.value)}
+                          placeholder="Incolla qui il testo completo. Usa l'invio per andare a capo."
+                          className={styles.lyricsTextarea}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </main>
+
+      {/* Controllo di Salvataggio Persistente in Basso */}
+      <footer className={styles.actionFooter}>
+        <div className={styles.footerInner}>
+          {saveStatus.success === true && (
+            <div className={`${styles.statusAlert} ${styles.success}`}>
+              <CheckCircle size={18} />
+              <span>{saveStatus.message}</span>
+            </div>
+          )}
+          {saveStatus.success === false && (
+            <div className={`${styles.statusAlert} ${styles.error}`}>
+              <AlertCircle size={18} />
+              <span>{saveStatus.message}</span>
+            </div>
+          )}
+          {saveStatus.success === null && (
+            <span className={styles.unsavedChangesText}>Ci sono modifiche non salvate? Clicca per applicare.</span>
+          )}
+
+          <button
+            onClick={handleSaveConfig}
+            disabled={loadingSave}
+            className={styles.saveBtn}
+          >
+            {loadingSave ? (
+              <>
+                <div className={styles.btnSpinner} /> Salvataggio...
+              </>
+            ) : (
+              <>
+                <Save size={16} /> Salva Modifiche
+              </>
+            )}
+          </button>
+        </div>
+      </footer>
+    </div>
+  );
+}
