@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Lock, Eye, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -81,6 +82,8 @@ export default function AdminPortal() {
     );
   };
 
+  const sanitizeFileName = (name) => name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
   const handleFileUpload = async (songId, field, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -94,10 +97,12 @@ export default function AdminPortal() {
       const { blobEnabled } = await modeRes.json();
 
       if (blobEnabled) {
-        const { upload } = await import("@vercel/blob/client");
-        const blob = await upload(`uploads/${Date.now()}-${file.name}`, file, {
+        const pathname = `uploads/${Date.now()}-${sanitizeFileName(file.name)}`;
+        const blob = await upload(pathname, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
+          multipart: file.size > 4.5 * 1024 * 1024,
+          ...(file.type ? { contentType: file.type } : {}),
         });
         url = blob.url;
       } else {
@@ -120,7 +125,11 @@ export default function AdminPortal() {
         alert("Errore di caricamento: risposta senza URL");
       }
     } catch (err) {
-      alert(`Errore durante l'upload: ${err.message}`);
+      const message =
+        err instanceof Error && err.message.includes("client token")
+          ? "Upload fallito: sessione scaduta o Blob non configurato. Riprova il login."
+          : err.message;
+      alert(`Errore durante l'upload: ${message}`);
     } finally {
       setUploading({ songId: null, field: null });
       e.target.value = "";

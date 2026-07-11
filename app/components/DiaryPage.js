@@ -20,9 +20,10 @@ import styles from "./DiaryPage.module.css";
   3) CORPO IN FLUSSO: seconda foto → punchline → foglietto. Appaiono una volta
      e RESTANO visibili, impilati senza sovrapporsi.
 */
-const INTRO_VH = 165;
-const LYRICS_PEEK_HEIGHT = 88; // ~3 righe visibili all'inizio
-const LYRICS_REVEAL_VH = 130; // distanza scroll per svelare tutto il testo
+const INTRO_VH = 140;
+const LYRICS_PEEK_HEIGHT = 88;
+const LYRICS_REVEAL_VH_MIN = 140;
+const LYRICS_REVEAL_VH_MAX = 240;
 
 export default function DiaryPage({
   song,
@@ -69,18 +70,25 @@ export default function DiaryPage({
     }
   }, [song.lyrics]);
 
+  const revealRunwayVh = Math.min(
+    LYRICS_REVEAL_VH_MAX,
+    Math.max(LYRICS_REVEAL_VH_MIN, 100 + Math.round(lyricsFullHeight / 28))
+  );
+
+  /* Pista di scroll pinnata: mentre scorri qui il foglietto resta fermo
+     e il testo si apre; solo a progress=1 riprende lo scroll della pagina. */
   const { scrollYProgress: revealProgress } = useScroll({
     target: sheetScrollRef,
     offset: ["start start", "end end"],
   });
 
-  const lyricsMaxHeight = useTransform(
-    revealProgress,
-    [0, 1],
-    [LYRICS_PEEK_HEIGHT, lyricsFullHeight]
-  );
-  const shareOpacity = useTransform(revealProgress, [0.82, 1], [0, 1]);
-  const lyricsFadeOpacity = useTransform(revealProgress, [0, 0.15, 0.85, 1], [1, 1, 0.4, 0]);
+  const lyricsMaxHeight = useTransform(revealProgress, (v) => {
+    const end = Math.max(lyricsFullHeight, LYRICS_PEEK_HEIGHT + 1);
+    return LYRICS_PEEK_HEIGHT + v * (end - LYRICS_PEEK_HEIGHT);
+  });
+
+  const shareOpacity = useTransform(revealProgress, [0.92, 1], [0, 1]);
+  const lyricsFadeOpacity = useTransform(revealProgress, [0, 0.2, 0.88, 1], [1, 1, 0.35, 0]);
 
   /* punchline a macchina da scrivere, quando entra in vista */
   const startTyping = useCallback(() => {
@@ -123,8 +131,7 @@ export default function DiaryPage({
       onViewportEnter={() => onEnterSection(song.id)}
       viewport={{ once: false, amount: 0.25 }}
     >
-      {/* sfondo sfocato/colorato della cover, dietro tutto il pezzo.
-          Contenitore con overflow:hidden così lo strato scalato non sfora. */}
+      {/* sfondo sfocato: sticky full-viewport, opacità legata allo scroll intro */}
       <motion.div className={styles.blurBg} style={{ opacity: bgOpacity }}>
         <div
           className={styles.blurBgInner}
@@ -187,7 +194,7 @@ export default function DiaryPage({
             style={{ rotate: rotate2 }}
             initial={{ opacity: 0, y: 48, scale: 0.9 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.4 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ type: "spring", stiffness: 110, damping: 15 }}
           >
             <div className={styles.coverPhoto}>
@@ -217,11 +224,11 @@ export default function DiaryPage({
             </p>
           </motion.div>
 
-          {/* FASE 5 — foglietto: il testo si svela a accordion mentre scorri */}
+          {/* FASE 5 — pista pinnata: scroll bloccato sul foglietto finché il testo non è aperto */}
           <div
             ref={sheetScrollRef}
             className={styles.sheetScrollTrack}
-            style={{ height: `${LYRICS_REVEAL_VH}vh` }}
+            style={{ height: `${revealRunwayVh}vh` }}
           >
             <div className={styles.sheet}>
               <div className={styles.tapeLeft} />

@@ -5,23 +5,9 @@ import { put } from "@vercel/blob";
 import { handleUpload } from "@vercel/blob/client";
 import { isAuthenticated } from "@/lib/auth";
 
-const IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/avif",
-];
-const AUDIO_TYPES = [
-  "audio/mpeg",
-  "audio/mp4",
-  "audio/wav",
-  "audio/ogg",
-  "audio/aac",
-  "audio/flac",
-  "audio/x-wav",
-];
-const ALLOWED_TYPES = [...IMAGE_TYPES, ...AUDIO_TYPES];
+export const dynamic = "force-dynamic";
+
+const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
 
 export async function GET() {
   return NextResponse.json({
@@ -55,9 +41,9 @@ export async function POST(req) {
         body,
         request: req,
         onBeforeGenerateToken: async () => ({
-          allowedContentTypes: ALLOWED_TYPES,
-          maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
+          maximumSizeInBytes: MAX_BYTES,
           addRandomSuffix: true,
+          cacheControlMaxAge: 60 * 60 * 24 * 365,
         }),
         onUploadCompleted: async () => {},
       });

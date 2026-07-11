@@ -48,15 +48,22 @@ poi sparisce): **mai sovrapposte al testo**.
 
 ## Audio su Vercel Blob
 
-1. In locale copia `.env.example` → `.env.local` e incolla `BLOB_READ_WRITE_TOKEN`
-   (Vercel → progetto → Storage → Blob store → tab `.env.local`).
-2. Metti i file audio in `./audio/`.
-3. `npm run upload-audio` → stampa gli URL pubblici (cache CDN 1 anno).
-4. Incolla ogni URL nel campo `audioSrc` del pezzo in `lib/songs.js`.
+### Upload da admin (immagini + audio)
 
-Quando `audioSrc` è valorizzato il player suona davvero; se è `null` restano
-solo le barre animate. Il **download** si sblocca dopo aver premuto play su
-tutti e 9 i pezzi.
+1. Su Vercel: **Storage** → crea un **Blob store** e collegalo al progetto.
+   Vercel inietta `BLOB_READ_WRITE_TOKEN` in automatico.
+2. In locale: copia `.env.example` → `.env.local` e incolla il token dalla tab
+   `.env.local` dello store Blob su Vercel.
+3. Vai su `/admin-portal`, carica i file e clicca **Salva Modifiche**.
+
+Gli upload passano direttamente a Vercel Blob (client upload), senza il limite
+4.5 MB delle serverless function. File grandi usano upload multipart.
+
+### Upload audio bulk da terminale (opzionale)
+
+1. Metti i file audio in `./audio/`.
+2. `npm run upload-audio` → stampa gli URL pubblici (cache CDN 1 anno).
+3. Incolla ogni URL nel campo `audioSrc` del pezzo in admin o `data/config.json`.
 
 ## Deploy su Vercel
 
