@@ -25,8 +25,7 @@ npm run dev
 
 | Cosa | File |
 | --- | --- |
-| Codice cassaforte (`VAULT_CODE`) | `lib/songs.js` (in cima) |
-| Dati dei 9 pezzi (`SONGS`) | `lib/songs.js` |
+| Codice cassaforte + dati pezzi | `/admin-portal` oppure `data/config.json` (locale) |
 | Palette / font token | `app/globals.css` (`:root`) |
 | Sequenza a 5 fasi (timing scroll) | `app/components/DiaryPage.js` |
 
@@ -71,3 +70,6 @@ Gli upload passano direttamente a Vercel Blob (client upload), senza il limite
 2. Storage → crea un **Blob store** e collegalo al progetto: `BLOB_READ_WRITE_TOKEN`
    viene iniettato in automatico.
 3. Deploy. Nessuna altra configurazione richiesta.
+
+In produzione la configurazione (`vaultCode` + `songs`) viene salvata su
+**Vercel Blob** (`data/config.json` nello store), non sul filesystem.
