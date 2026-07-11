@@ -6,9 +6,35 @@ import TapePlayer from "./TapePlayer";
 import { formatDiarySub } from "@/lib/copy";
 import styles from "./Diary.module.css";
 
+const FADE_MS = 400;
+
+function fadeVolume(el, to, duration, rafRef) {
+  if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  const from = el.volume;
+  const start = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - start) / duration);
+    el.volume = from + (to - from) * t;
+    if (t < 1) {
+      rafRef.current = requestAnimationFrame(tick);
+    } else {
+      rafRef.current = null;
+    }
+  };
+  rafRef.current = requestAnimationFrame(tick);
+}
+
 export default function Diary({ songs = [], copy = {} }) {
   const [playingId, setPlayingId] = useState(null);
   const audioRef = useRef(null);
+  const fadeRafRef = useRef(null);
+
+  /* Autoplay: sbloccato solo dopo il primo play manuale */
+  const listeningUnlockedRef = useRef(false);
+  /* Sezioni già “consumate” per l’autoplay (una sola volta ciascuna) */
+  const visitedSectionsRef = useRef(new Set());
+  /* L’utente ha messo in pausa: niente autoplay finché non preme play */
+  const userPausedRef = useRef(false);
 
   const playingSong = songs.find((s) => s.id === playingId);
 
@@ -17,6 +43,7 @@ export default function Diary({ songs = [], copy = {} }) {
     if (!el) return;
 
     if (!playingSong?.audioSrc) {
+      if (fadeRafRef.current) cancelAnimationFrame(fadeRafRef.current);
       el.pause();
       return;
     }
@@ -26,16 +53,34 @@ export default function Diary({ songs = [], copy = {} }) {
       el.load();
     }
 
-    el.play().catch(() => {});
+    el.volume = 0;
+    el.play()
+      .then(() => fadeVolume(el, 1, FADE_MS, fadeRafRef))
+      .catch(() => {});
   }, [playingId, playingSong?.audioSrc]);
 
   const togglePlay = useCallback((song) => {
-    setPlayingId((cur) => (cur === song.id ? null : song.id));
+    setPlayingId((cur) => {
+      if (cur === song.id) {
+        userPausedRef.current = true;
+        return null;
+      }
+      listeningUnlockedRef.current = true;
+      userPausedRef.current = false;
+      visitedSectionsRef.current.add(song.id);
+      return song.id;
+    });
   }, []);
 
   const handleEnterSection = useCallback((song) => {
+    if (userPausedRef.current) return;
+    if (!listeningUnlockedRef.current) return;
+    if (visitedSectionsRef.current.has(song.id)) return;
+
+    visitedSectionsRef.current.add(song.id);
+
     if (song.audioSrc) {
-      setPlayingId((cur) => (cur === song.id ? cur : song.id));
+      setPlayingId(song.id);
       return;
     }
     setPlayingId((cur) => (cur !== null && cur !== song.id ? null : cur));
