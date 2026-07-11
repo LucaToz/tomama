@@ -14,7 +14,6 @@
   /* Fonts (i --font-* arrivano da next/font in layout.js) */
   --f-marker: var(--font-marker), cursive;
   --f-rubik: var(--font-rubik), display;
-  --f-caveat: var(--font-caveat), cursive;
   --f-elite: var(--font-elite), monospace;
   --f-mono: var(--font-mono), monospace;
 }

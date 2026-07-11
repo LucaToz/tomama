@@ -1,6 +1,5 @@
 import {
   Permanent_Marker,
-  Caveat,
   Special_Elite,
   JetBrains_Mono,
   Rubik_Distressed,
@@ -21,14 +20,6 @@ export const rubikDistressed = Rubik_Distressed({
   variable: "--font-rubik",
 });
 
-// Note manoscritte / punchline
-export const caveat = Caveat({
-  weight: ["500", "700"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-caveat",
-});
-
 // Testo diario / lyrics
 export const specialElite = Special_Elite({
   weight: "400",
@@ -37,7 +28,7 @@ export const specialElite = Special_Elite({
   variable: "--font-elite",
 });
 
-// Label / utility
+// Label / utility / note
 export const jetBrainsMono = JetBrains_Mono({
   weight: ["400", "600"],
   subsets: ["latin"],

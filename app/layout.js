@@ -1,5 +1,5 @@
 import "./globals.css";
-import { permanentMarker, caveat, specialElite, jetBrainsMono, rubikDistressed } from "./fonts";
+import { permanentMarker, specialElite, jetBrainsMono, rubikDistressed } from "./fonts";
 
 export const metadata = {
   title: "Tomama — pezzi nuovi",
@@ -16,7 +16,6 @@ export const viewport = {
 export default function RootLayout({ children }) {
   const fontVars = [
     permanentMarker.variable,
-    caveat.variable,
     specialElite.variable,
     jetBrainsMono.variable,
     rubikDistressed.variable,

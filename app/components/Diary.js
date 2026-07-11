@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import DiaryPage from "./DiaryPage";
 import TapePlayer from "./TapePlayer";
 import { formatDiarySub } from "@/lib/copy";
@@ -8,6 +8,26 @@ import styles from "./Diary.module.css";
 
 export default function Diary({ songs = [], copy = {} }) {
   const [playingId, setPlayingId] = useState(null);
+  const audioRef = useRef(null);
+
+  const playingSong = songs.find((s) => s.id === playingId);
+
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+
+    if (!playingSong?.audioSrc) {
+      el.pause();
+      return;
+    }
+
+    if (el.getAttribute("src") !== playingSong.audioSrc) {
+      el.setAttribute("src", playingSong.audioSrc);
+      el.load();
+    }
+
+    el.play().catch(() => {});
+  }, [playingId, playingSong?.audioSrc]);
 
   const togglePlay = useCallback((song) => {
     setPlayingId((cur) => (cur === song.id ? null : song.id));
@@ -15,7 +35,7 @@ export default function Diary({ songs = [], copy = {} }) {
 
   const handleEnterSection = useCallback((song) => {
     if (song.audioSrc) {
-      setPlayingId(song.id);
+      setPlayingId((cur) => (cur === song.id ? cur : song.id));
       return;
     }
     setPlayingId((cur) => (cur !== null && cur !== song.id ? null : cur));
@@ -23,6 +43,8 @@ export default function Diary({ songs = [], copy = {} }) {
 
   return (
     <div className={styles.wrap}>
+      <audio ref={audioRef} preload="none" className={styles.hiddenAudio} />
+
       <header className={styles.header}>
         <div className={styles.stamp}>{copy.diaryStamp}</div>
         <h1 className={styles.band}>{copy.diaryBand}</h1>

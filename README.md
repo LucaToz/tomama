@@ -9,7 +9,7 @@ old school guidata dallo scroll.
 - **Next.js** (App Router) — `app/`
 - **Framer Motion** (`useScroll` + `useTransform`) per tutte le animazioni
   scroll-driven (niente listener manuali su `window`)
-- **next/font/google** — Permanent Marker, Caveat, Special Elite, JetBrains Mono
+- **next/font/google** — Permanent Marker, Special Elite, JetBrains Mono
 - **Vercel Blob** (`@vercel/blob`) per l'hosting audio
 - **lucide-react** per le icone
 

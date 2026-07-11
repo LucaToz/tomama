@@ -28,7 +28,7 @@
 }
 
 .sub {
-  font-family: var(--f-caveat);
+  font-family: var(--f-mono);
   font-size: 22px;
   color: #c9c2b3;
   margin: 0 0 40px;
@@ -76,6 +76,6 @@
 .error {
   margin-top: 16px;
   color: var(--accent);
-  font-family: var(--f-caveat);
+  font-family: var(--f-mono);
   font-size: 18px;
 }

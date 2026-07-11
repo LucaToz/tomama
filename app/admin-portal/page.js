@@ -39,7 +39,7 @@ export default function AdminPortal() {
   }, []);
 
   const loadConfig = () => {
-    fetch("/api/config")
+    fetch("/api/config", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         setVaultCode(data.vaultCode || "");

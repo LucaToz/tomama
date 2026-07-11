@@ -4,6 +4,10 @@
   padding: 0 0 80px;
 }
 
+.hiddenAudio {
+  display: none;
+}
+
 .header {
   padding: 56px 24px 40px;
   text-align: center;
@@ -70,7 +74,7 @@
 }
 
 .note {
-  font-family: var(--f-caveat);
+  font-family: var(--f-mono);
   font-size: 18px;
   color: var(--muted);
   margin-top: 20px;
