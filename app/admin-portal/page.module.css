@@ -1,3 +1,5 @@
+/* Admin — solo bianco e nero, font Poppins (da layout) */
+
 .adminLoading {
   min-height: 100vh;
   min-height: 100svh;
@@ -5,18 +7,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #17140f;
-  color: var(--paper);
-  font-family: var(--f-mono);
+  background: #fff;
+  color: #000;
   font-size: 13px;
+  font-weight: 500;
   gap: 12px;
 }
 
 .spinner {
   width: 28px;
   height: 28px;
-  border: 2px solid rgba(243, 236, 218, 0.15);
-  border-top-color: var(--accent);
+  border: 2px solid #e0e0e0;
+  border-top-color: #000;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -25,44 +27,43 @@
   to { transform: rotate(360deg); }
 }
 
-/* --- LOGIN SCREEN --- */
+/* --- LOGIN --- */
 .loginWrap {
   min-height: 100vh;
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #12100b;
+  background: #fff;
   padding: 24px;
 }
 
 .loginCard {
   width: 100%;
   max-width: 400px;
-  background: #1c1812;
-  border: 1px solid #332d23;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  background: #fff;
+  border: 2px solid #000;
   padding: 40px 32px;
-  border-radius: 8px;
   text-align: center;
 }
 
 .loginHeader h1 {
-  font-family: var(--f-marker);
-  font-size: 28px;
-  color: var(--paper);
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
   margin: 12px 0 6px;
+  letter-spacing: -0.02em;
 }
 
 .loginHeader p {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
   margin: 0 0 32px;
 }
 
 .lockIcon {
-  color: var(--accent);
+  color: #000;
   margin-bottom: 8px;
 }
 
@@ -73,59 +74,57 @@
 }
 
 .passwordInput {
-  background: #28231a;
-  border: 1px solid #423b2e;
-  border-radius: 4px;
+  background: #fff;
+  border: 2px solid #000;
   padding: 14px 16px;
-  color: var(--paper);
-  font-family: var(--f-mono);
+  color: #000;
   font-size: 14px;
+  font-weight: 500;
   text-align: center;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   outline: none;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: background 0.2s;
 }
 
 .passwordInput:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(200, 29, 61, 0.2);
+  background: #f5f5f5;
 }
 
 .loginError {
-  font-family: var(--f-caveat);
-  font-size: 18px;
-  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  color: #000;
   margin: -8px 0 0;
+  text-decoration: underline;
 }
 
 .loginBtn {
-  background: var(--accent);
+  background: #000;
   color: #fff;
-  border: none;
-  border-radius: 4px;
+  border: 2px solid #000;
   padding: 14px;
-  font-family: var(--f-mono);
   font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
   font-weight: 600;
-  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
 }
 
 .loginBtn:hover {
-  opacity: 0.9;
+  background: #fff;
+  color: #000;
 }
 
 .loginBtn:active {
   transform: scale(0.98);
 }
 
-/* --- ADMIN LAYOUT --- */
+/* --- LAYOUT --- */
 .adminLayout {
   min-height: 100vh;
-  background: #17140f;
-  color: #e3dabc;
-  padding-bottom: 120px; /* Spazio per il footer di salvataggio in basso */
+  background: #fff;
+  color: #000;
+  padding-bottom: 120px;
 }
 
 .header {
@@ -133,39 +132,39 @@
   align-items: center;
   justify-content: space-between;
   padding: 24px 28px;
-  background: #1c1812;
-  border-bottom: 1px solid #2e281e;
+  background: #fff;
+  border-bottom: 2px solid #000;
   position: sticky;
   top: 0;
   z-index: 40;
 }
 
 .headerTitle h1 {
-  font-family: var(--f-marker);
-  font-size: 26px;
-  color: var(--paper);
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
   margin: 0;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .headerTitle span {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #666;
   text-transform: uppercase;
   display: block;
   margin-top: 4px;
 }
 
 .logoutBtn {
-  background: #2e281e;
-  border: 1px solid #443c2f;
-  color: var(--paper);
-  font-family: var(--f-mono);
-  font-size: 11px;
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
   padding: 8px 16px;
-  border-radius: 4px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -173,8 +172,7 @@
 }
 
 .logoutBtn:hover {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #000;
   color: #fff;
 }
 
@@ -187,32 +185,30 @@
   gap: 32px;
 }
 
-/* --- CARDS & BLOCKS --- */
+/* --- CARDS --- */
 .card {
-  background: #1c1812;
-  border: 1px solid #2e281e;
-  border-radius: 8px;
+  background: #fff;
+  border: 2px solid #000;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .cardHeader {
   padding: 20px 24px;
-  border-bottom: 1px solid #2e281e;
-  background: #211c15;
+  border-bottom: 2px solid #000;
+  background: #f5f5f5;
 }
 
 .cardHeader h2 {
-  font-family: var(--f-marker);
-  font-size: 20px;
-  color: var(--paper);
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
   margin: 0;
 }
 
 .cardHeader p {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
   margin: 6px 0 0;
 }
 
@@ -228,37 +224,36 @@
 }
 
 .inputGroup label {
-  font-family: var(--f-mono);
   font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  color: var(--muted-2);
-  letter-spacing: 0.5px;
+  color: #000;
+  letter-spacing: 0.08em;
 }
 
 .vaultCodeInput {
-  background: #252018;
-  border: 1px solid #3d3427;
-  color: var(--paper);
-  font-family: var(--f-mono);
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
   font-size: 20px;
+  font-weight: 600;
   letter-spacing: 4px;
   padding: 12px 16px;
-  border-radius: 4px;
   max-width: 250px;
   outline: none;
 }
 
 .vaultCodeInput:focus {
-  border-color: var(--accent);
+  background: #f5f5f5;
 }
 
 .helpText {
-  font-family: var(--f-caveat);
-  font-size: 16px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
 }
 
-/* --- SONGS SECTION --- */
+/* --- SONGS --- */
 .songsSection {
   display: flex;
   flex-direction: column;
@@ -266,16 +261,16 @@
 }
 
 .sectionHeader h2 {
-  font-family: var(--f-marker);
-  font-size: 24px;
-  color: var(--paper);
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
   margin: 0;
 }
 
 .sectionHeader p {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
   margin: 6px 0 0;
 }
 
@@ -286,16 +281,14 @@
 }
 
 .songCard {
-  background: #1c1812;
-  border: 1px solid #2e281e;
-  border-radius: 6px;
+  background: #fff;
+  border: 2px solid #000;
   overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: box-shadow 0.2s;
 }
 
 .songCard.expanded {
-  border-color: #524734;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 6px 6px 0 #000;
 }
 
 .songCardHeader {
@@ -304,12 +297,13 @@
   justify-content: space-between;
   padding: 18px 24px;
   cursor: pointer;
-  background: #1f1b14;
+  background: #fff;
   user-select: none;
+  transition: background 0.2s;
 }
 
 .songCardHeader:hover {
-  background: #28221a;
+  background: #f5f5f5;
 }
 
 .songTitleArea {
@@ -319,16 +313,15 @@
 }
 
 .songIndex {
-  font-family: var(--f-mono);
   font-size: 12px;
-  color: var(--accent);
-  font-weight: 600;
+  font-weight: 700;
+  color: #000;
 }
 
 .songTitleArea h3 {
-  font-family: var(--f-marker);
-  font-size: 18px;
-  color: var(--paper);
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
   margin: 0;
 }
 
@@ -336,24 +329,25 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  color: var(--muted);
+  color: #000;
 }
 
 .indicatorActive {
-  color: var(--accent);
+  color: #000;
+  opacity: 1;
 }
 
 .indicatorInactive {
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
 .songCardBody {
   padding: 24px;
-  border-top: 1px solid #2e281e;
+  border-top: 2px solid #000;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #17140f;
+  background: #fafafa;
 }
 
 .row {
@@ -370,20 +364,19 @@
 
 .songCardBody input[type="text"],
 .songCardBody textarea {
-  background: #211c15;
-  border: 1px solid #362e22;
-  border-radius: 4px;
+  background: #fff;
+  border: 2px solid #000;
   padding: 12px 14px;
-  color: var(--paper);
-  font-family: var(--f-elite);
-  font-size: 13px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 400;
   outline: none;
   width: 100%;
 }
 
 .songCardBody input[type="text"]:focus,
 .songCardBody textarea:focus {
-  border-color: var(--accent);
+  background: #f5f5f5;
 }
 
 .fileFieldRow {
@@ -403,9 +396,8 @@
 .fileInputWrapper {
   display: flex;
   width: 100%;
-  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #362e22;
+  border: 2px solid #000;
 }
 
 .urlInput {
@@ -415,24 +407,26 @@
 }
 
 .uploadBtnLabel {
-  background: #2e281e;
-  color: var(--paper);
+  background: #000;
+  color: #fff;
   padding: 12px 18px;
-  font-family: var(--f-mono);
   font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.06em;
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid #362e22;
+  border-left: 2px solid #000;
   user-select: none;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .uploadBtnLabel:hover {
-  background: #3d3527;
+  background: #fff;
+  color: #000;
 }
 
 .hiddenFileInput {
@@ -440,9 +434,9 @@
 }
 
 .uploadingText {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  color: #000;
   margin: 4px 0 0;
 }
 
@@ -450,9 +444,8 @@
   flex-shrink: 0;
   width: 80px;
   height: 80px;
-  background: #110f0b;
-  border: 1px solid #362e22;
-  border-radius: 4px;
+  background: #fff;
+  border: 2px solid #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -463,6 +456,7 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
+  filter: grayscale(100%);
 }
 
 .previewAudioContainer {
@@ -474,24 +468,23 @@
 .audioPreviewPlayer {
   width: 100%;
   height: 36px;
-  border-radius: 4px;
+  filter: grayscale(100%);
 }
 
 .lyricsTextarea {
   line-height: 1.6;
 }
 
-/* --- PERSISTENT FOOTER --- */
+/* --- FOOTER --- */
 .actionFooter {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #1c1812;
-  border-top: 1px solid #2e281e;
+  background: #fff;
+  border-top: 2px solid #000;
   padding: 16px 24px;
   z-index: 45;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .footerInner {
@@ -513,31 +506,30 @@
 }
 
 .unsavedChangesText {
-  font-family: var(--f-caveat);
-  font-size: 18px;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+  color: #666;
 }
 
 .saveBtn {
-  background: var(--accent);
+  background: #000;
   color: #fff;
-  border: none;
-  border-radius: 24px;
+  border: 2px solid #000;
   padding: 12px 32px;
-  font-family: var(--f-mono);
   font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .saveBtn:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #fff;
+  color: #000;
 }
 
 .saveBtn:active:not(:disabled) {
@@ -545,7 +537,7 @@
 }
 
 .saveBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -562,20 +554,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   padding: 8px 16px;
-  border-radius: 20px;
+  border: 2px solid #000;
 }
 
 .statusAlert.success {
-  background: rgba(39, 174, 96, 0.15);
-  color: #2ecc71;
-  border: 1px solid rgba(39, 174, 96, 0.3);
+  background: #fff;
+  color: #000;
 }
 
 .statusAlert.error {
-  background: rgba(192, 57, 43, 0.15);
-  color: #e74c3c;
-  border: 1px solid rgba(192, 57, 43, 0.3);
+  background: #000;
+  color: #fff;
 }
