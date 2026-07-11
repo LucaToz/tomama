@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { DEFAULT_COPY, mergeCopy } from "@/lib/copy";
-import { Lock, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { createEmptySong } from "@/lib/songs";
+import { Lock, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import styles from "./page.module.css";
 
 export default function AdminPortal() {
@@ -88,6 +89,29 @@ export default function AdminPortal() {
     setSongs((prevSongs) =>
       prevSongs.map((s) => (s.id === id ? { ...s, [field]: value } : s))
     );
+  };
+
+  const addSong = () => {
+    const nextId = songs.reduce((max, s) => Math.max(max, s.id), 0) + 1;
+    const newSong = createEmptySong(nextId);
+    setSongs((prev) => [...prev, newSong]);
+    setActiveSongId(nextId);
+  };
+
+  const deleteSong = (id) => {
+    if (!window.confirm("Eliminare questo pezzo?")) return;
+    setSongs((prev) => prev.filter((s) => s.id !== id));
+    if (activeSongId === id) setActiveSongId(null);
+  };
+
+  const moveSong = (index, direction) => {
+    setSongs((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   };
 
   const sanitizeFileName = (name) => name.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -360,9 +384,14 @@ export default function AdminPortal() {
 
         {/* Sezione Canzoni */}
         <section className={styles.songsSection}>
-          <div className={styles.sectionHeader}>
-            <h2>I 9 Pezzi</h2>
-            <p>Gestisci immagini, file audio e testi per ciascuna canzone.</p>
+          <div className={styles.sectionHeaderRow}>
+            <div className={styles.sectionHeader}>
+              <h2>I Pezzi ({songs.length})</h2>
+              <p>Aggiungi, elimina, riordina e modifica ogni traccia.</p>
+            </div>
+            <button type="button" onClick={addSong} className={styles.addSongBtn}>
+              <Plus size={16} /> Aggiungi pezzo
+            </button>
           </div>
 
           <div className={styles.songsList}>
@@ -370,8 +399,7 @@ export default function AdminPortal() {
               const isExpanded = activeSongId === song.id;
               return (
                 <div key={song.id} className={`${styles.songCard} ${isExpanded ? styles.expanded : ""}`}>
-                  {/* Intestazione Traccia */}
-                  <div 
+                  <div
                     onClick={() => setActiveSongId(isExpanded ? null : song.id)}
                     className={styles.songCardHeader}
                   >
@@ -380,6 +408,34 @@ export default function AdminPortal() {
                       <h3>{song.title || `Traccia ${song.id} (Senza titolo)`}</h3>
                     </div>
                     <div className={styles.songHeaderIcons}>
+                      <div className={styles.songActions} onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          className={styles.iconBtn}
+                          onClick={() => moveSong(index, -1)}
+                          disabled={index === 0}
+                          title="Sposta su"
+                        >
+                          <ArrowUp size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.iconBtn}
+                          onClick={() => moveSong(index, 1)}
+                          disabled={index === songs.length - 1}
+                          title="Sposta giù"
+                        >
+                          <ArrowDown size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                          onClick={() => deleteSong(song.id)}
+                          title="Elimina pezzo"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                       {song.audioSrc ? <Music size={14} className={styles.indicatorActive} /> : <Music size={14} className={styles.indicatorInactive} />}
                       {song.photo ? <ImageIcon size={14} className={styles.indicatorActive} /> : <ImageIcon size={14} className={styles.indicatorInactive} />}
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
