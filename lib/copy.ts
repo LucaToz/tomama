@@ -1,4 +1,5 @@
 import { sanitizeExternalUrl } from "./urls";
+import { sanitizeInlineHtml } from "./html";
 import type { CopyConfig } from "./types";
 
 export const DEFAULT_COPY: CopyConfig = {
@@ -28,6 +29,10 @@ export function mergeCopy(copy?: Partial<CopyConfig> | null): CopyConfig {
 
 export function formatDiarySub(template: string, count: number): string {
   return (template || DEFAULT_COPY.diarySub).replace("{count}", String(count));
+}
+
+export function formatDiarySubHtml(template: string, count: number): string {
+  return sanitizeInlineHtml(formatDiarySub(template, count));
 }
 
 export function pickVaultCopy(copy: CopyConfig): Pick<

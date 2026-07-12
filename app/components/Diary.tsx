@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import DiaryPage from "./DiaryPage";
 import TapePlayer from "./TapePlayer";
-import { formatDiarySub } from "@/lib/copy";
+import { formatDiarySubHtml } from "@/lib/copy";
 import type { CopyConfig, Song } from "@/lib/types";
 import styles from "./Diary.module.css";
 
@@ -40,8 +40,11 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
   const audioRef = useRef<HTMLAudioElement>(null);
   const fadeRafRef = useRef<number | null>(null);
 
+  /* Autoplay: sbloccato solo dopo il primo play manuale */
   const listeningUnlockedRef = useRef(false);
+  /* Sezioni già “consumate” per l’autoplay (una sola volta ciascuna) */
   const visitedSectionsRef = useRef(new Set<number>());
+  /* L’utente ha messo in pausa: niente autoplay finché non preme play */
   const userPausedRef = useRef(false);
 
   const playingSong = songs.find((s) => s.id === playingId);
@@ -53,6 +56,7 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
     if (!playingSong?.audioSrc) {
       if (fadeRafRef.current) cancelAnimationFrame(fadeRafRef.current);
       el.pause();
+      el.volume = 0;
       return;
     }
 
@@ -110,7 +114,12 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
       <header className={styles.header}>
         <div className={styles.stamp}>{copy.diaryStamp}</div>
         <h1 className={styles.band}>{copy.diaryBand}</h1>
-        <p className={styles.sub}>{formatDiarySub(copy.diarySub, songs.length)}</p>
+        <p
+          className={styles.sub}
+          dangerouslySetInnerHTML={{
+            __html: formatDiarySubHtml(copy.diarySub, songs.length),
+          }}
+        />
       </header>
 
       {songs.map((song, i) => (

@@ -359,12 +359,15 @@ export default function AdminPortal() {
                 </div>
                 <div className={styles.inputGroup}>
                   <label>Sottotitolo</label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={4}
                     value={copy.diarySub}
                     onChange={(e) => updateCopyField("diarySub", e.target.value)}
+                    className={styles.lyricsTextarea}
                   />
-                  <span className={styles.helpText}>Usa {"{count}"} per il numero di pezzi.</span>
+                  <span className={styles.helpText}>
+                    Usa {"{count}"} per il numero di pezzi. HTML consentito: &lt;b&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;i&gt;, &lt;br/&gt;
+                  </span>
                 </div>
               </div>
             </div>

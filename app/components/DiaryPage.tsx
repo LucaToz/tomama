@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState, useCallback, useLayoutEffect } from "react";
+import { useRef, useState, useCallback, useLayoutEffect, useEffect } from "react";
 import {
   motion,
   useScroll,
   useTransform,
   useMotionValueEvent,
+  useInView,
   type MotionValue,
 } from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
@@ -250,12 +251,20 @@ export default function DiaryPage({
   onEnterSection,
 }: DiaryPageProps) {
   const introRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const sectionInView = useInView(sectionRef, { amount: 0.25, once: false });
   const [charCount, setCharCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const typingStarted = useRef(false);
 
   const rotate1 = index % 2 === 0 ? -4 : 5;
   const extraPhotos = getSongPhotos(song);
+
+  useEffect(() => {
+    if (sectionInView) {
+      onEnterSection(song);
+    }
+  }, [sectionInView, onEnterSection, song]);
 
   const { scrollYProgress } = useScroll({
     target: introRef,
@@ -356,10 +365,9 @@ export default function DiaryPage({
 
   return (
     <motion.section
+      ref={sectionRef}
       id={`pezzo-${song.id}`}
       className={`${styles.section}${isFirst ? ` ${styles.sectionFirst}` : ""}`}
-      onViewportEnter={() => onEnterSection(song)}
-      viewport={{ once: false, amount: 0.25 }}
     >
       <motion.div className={styles.blurBg} style={{ opacity: bgOpacity }}>
         <div
