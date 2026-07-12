@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { upload } from "@vercel/blob/client";
 import { DEFAULT_COPY, mergeCopy } from "@/lib/copy";
 import { createEmptySong, getSongPhotos, MAX_EXTRA_PHOTOS } from "@/lib/songs";
+import { sanitizeFileName } from "@/lib/urls";
+import type { AdminConfigResponse, CopyConfig, SaveStatus, Song, UploadState } from "@/lib/types";
 import { Lock, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -13,13 +15,13 @@ export default function AdminPortal() {
   const [loginError, setLoginError] = useState("");
   const [loadingCheck, setLoadingCheck] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
-  
+
   const [vaultCode, setVaultCode] = useState("");
-  const [copy, setCopy] = useState({ ...DEFAULT_COPY });
-  const [songs, setSongs] = useState([]);
-  const [activeSongId, setActiveSongId] = useState(null); // per espandere una canzone alla volta
-  const [uploading, setUploading] = useState({ songId: null, field: null });
-  const [saveStatus, setSaveStatus] = useState({ success: null, message: "" });
+  const [copy, setCopy] = useState<CopyConfig>({ ...DEFAULT_COPY });
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [activeSongId, setActiveSongId] = useState<number | null>(null);
+  const [uploading, setUploading] = useState<UploadState>({ songId: null, field: null });
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>({ success: null, message: "" });
 
   // Controlla se la sessione admin è già attiva
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function AdminPortal() {
   const loadConfig = () => {
     fetch("/api/config", { cache: "no-store" })
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: AdminConfigResponse) => {
         setVaultCode(data.vaultCode || "");
         setCopy(mergeCopy(data.copy));
         setSongs(data.songs || []);
@@ -52,7 +54,7 @@ export default function AdminPortal() {
       });
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError("");
     try {
@@ -68,7 +70,7 @@ export default function AdminPortal() {
       } else {
         setLoginError(data.error || "Password non corretta");
       }
-    } catch (err) {
+    } catch {
       setLoginError("Errore durante la connessione al server");
     }
   };
@@ -81,24 +83,23 @@ export default function AdminPortal() {
     setCopy({ ...DEFAULT_COPY });
   };
 
-  const updateCopyField = (key, value) => {
+  const updateCopyField = (key: keyof CopyConfig, value: string) => {
     setCopy((prev) => ({ ...prev, [key]: value }));
   };
 
-  const updateSongField = (id, field, value) => {
+  const updateSongField = (id: number, field: keyof Song, value: string | null) => {
     setSongs((prevSongs) =>
       prevSongs.map((s) => (s.id === id ? { ...s, [field]: value } : s))
     );
   };
 
-  const updateSongPhotoAt = (id, index, value) => {
+  const updateSongPhotoAt = (id: number, index: number, value: string) => {
     setSongs((prevSongs) =>
       prevSongs.map((s) => {
         if (s.id !== id) return s;
         const slots = Array.from({ length: MAX_EXTRA_PHOTOS }, (_, i) => getSongPhotos(s)[i] || "");
         slots[index] = value || "";
-        const { photo2, ...rest } = s;
-        return { ...rest, photos: slots.filter(Boolean) };
+        return { ...s, photos: slots.filter(Boolean) };
       })
     );
   };
@@ -110,13 +111,13 @@ export default function AdminPortal() {
     setActiveSongId(nextId);
   };
 
-  const deleteSong = (id) => {
+  const deleteSong = (id: number) => {
     if (!window.confirm("Eliminare questo pezzo?")) return;
     setSongs((prev) => prev.filter((s) => s.id !== id));
     if (activeSongId === id) setActiveSongId(null);
   };
 
-  const moveSong = (index, direction) => {
+  const moveSong = (index: number, direction: number) => {
     setSongs((prev) => {
       const target = index + direction;
       if (target < 0 || target >= prev.length) return prev;
@@ -126,19 +127,17 @@ export default function AdminPortal() {
     });
   };
 
-  const sanitizeFileName = (name) => name.replace(/[^a-zA-Z0-9._-]/g, "_");
-
-  const handleFileUpload = async (songId, field, e) => {
+  const handleFileUpload = async (songId: number, field: string, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading({ songId, field });
 
     try {
-      let url;
+      let url: string | undefined;
 
       const modeRes = await fetch("/api/upload");
-      const { blobEnabled } = await modeRes.json();
+      const { blobEnabled } = (await modeRes.json()) as { blobEnabled: boolean };
 
       if (blobEnabled) {
         const pathname = `uploads/${Date.now()}-${sanitizeFileName(file.name)}`;
@@ -156,7 +155,7 @@ export default function AdminPortal() {
           method: "POST",
           body: formData,
         });
-        const data = await res.json();
+        const data = (await res.json()) as { error?: string; url?: string };
         if (!res.ok) {
           throw new Error(data.error || "Errore di caricamento");
         }
@@ -167,7 +166,7 @@ export default function AdminPortal() {
         if (field.startsWith("photos.")) {
           const index = Number(field.split(".")[1]);
           updateSongPhotoAt(songId, index, url);
-        } else {
+        } else if (field === "photo" || field === "audioSrc") {
           updateSongField(songId, field, url);
         }
       } else {
@@ -177,7 +176,9 @@ export default function AdminPortal() {
       const message =
         err instanceof Error && err.message.includes("client token")
           ? "Upload fallito: sessione scaduta o Blob non configurato. Riprova il login."
-          : err.message;
+          : err instanceof Error
+            ? err.message
+            : "Errore di upload";
       alert(`Errore durante l'upload: ${message}`);
     } finally {
       setUploading({ songId: null, field: null });
@@ -202,7 +203,8 @@ export default function AdminPortal() {
         setSaveStatus({ success: false, message: `Errore nel salvataggio: ${data.error}` });
       }
     } catch (err) {
-      setSaveStatus({ success: false, message: `Errore di connessione: ${err.message}` });
+      const message = err instanceof Error ? err.message : "Errore di connessione";
+      setSaveStatus({ success: false, message: `Errore di connessione: ${message}` });
     } finally {
       setLoadingSave(false);
     }
@@ -498,7 +500,7 @@ export default function AdminPortal() {
                           />
                         </div>
                         <div className={styles.inputGroup}>
-                          <label>Durata (es. "2:41")</label>
+                          <label>Durata (es. &quot;2:41&quot;)</label>
                           <input
                             type="text"
                             value={song.duration || ""}

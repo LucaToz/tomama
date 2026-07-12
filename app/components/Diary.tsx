@@ -4,15 +4,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import DiaryPage from "./DiaryPage";
 import TapePlayer from "./TapePlayer";
 import { formatDiarySub } from "@/lib/copy";
+import type { CopyConfig, Song } from "@/lib/types";
 import styles from "./Diary.module.css";
 
 const FADE_MS = 400;
 
-function fadeVolume(el, to, duration, rafRef) {
+function fadeVolume(
+  el: HTMLAudioElement,
+  to: number,
+  duration: number,
+  rafRef: React.MutableRefObject<number | null>
+) {
   if (rafRef.current) cancelAnimationFrame(rafRef.current);
   const from = el.volume;
   const start = performance.now();
-  const tick = (now) => {
+  const tick = (now: number) => {
     const t = Math.min(1, (now - start) / duration);
     el.volume = from + (to - from) * t;
     if (t < 1) {
@@ -24,16 +30,18 @@ function fadeVolume(el, to, duration, rafRef) {
   rafRef.current = requestAnimationFrame(tick);
 }
 
-export default function Diary({ songs = [], copy = {} }) {
-  const [playingId, setPlayingId] = useState(null);
-  const audioRef = useRef(null);
-  const fadeRafRef = useRef(null);
+interface DiaryProps {
+  songs?: Song[];
+  copy?: CopyConfig;
+}
 
-  /* Autoplay: sbloccato solo dopo il primo play manuale */
+export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProps) {
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const fadeRafRef = useRef<number | null>(null);
+
   const listeningUnlockedRef = useRef(false);
-  /* Sezioni già “consumate” per l’autoplay (una sola volta ciascuna) */
-  const visitedSectionsRef = useRef(new Set());
-  /* L’utente ha messo in pausa: niente autoplay finché non preme play */
+  const visitedSectionsRef = useRef(new Set<number>());
   const userPausedRef = useRef(false);
 
   const playingSong = songs.find((s) => s.id === playingId);
@@ -59,7 +67,7 @@ export default function Diary({ songs = [], copy = {} }) {
       .catch(() => {});
   }, [playingId, playingSong?.audioSrc]);
 
-  const togglePlay = useCallback((song) => {
+  const togglePlay = useCallback((song: Song) => {
     setPlayingId((cur) => {
       if (cur === song.id) {
         userPausedRef.current = true;
@@ -72,7 +80,7 @@ export default function Diary({ songs = [], copy = {} }) {
     });
   }, []);
 
-  const handleEnterSection = useCallback((song) => {
+  const handleEnterSection = useCallback((song: Song) => {
     if (userPausedRef.current) return;
     if (!listeningUnlockedRef.current) return;
     if (visitedSectionsRef.current.has(song.id)) return;

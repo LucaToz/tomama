@@ -5,7 +5,6 @@ import {
   Rubik_Distressed,
 } from "next/font/google";
 
-// Titoli
 export const permanentMarker = Permanent_Marker({
   weight: "400",
   subsets: ["latin"],
@@ -20,7 +19,6 @@ export const rubikDistressed = Rubik_Distressed({
   variable: "--font-rubik",
 });
 
-// Testo diario / lyrics
 export const specialElite = Special_Elite({
   weight: "400",
   subsets: ["latin"],
@@ -28,7 +26,6 @@ export const specialElite = Special_Elite({
   variable: "--font-elite",
 });
 
-// Label / utility / note
 export const jetBrainsMono = JetBrains_Mono({
   weight: ["400", "600"],
   subsets: ["latin"],

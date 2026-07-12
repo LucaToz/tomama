@@ -2,16 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Lock } from "lucide-react";
+import type { VaultCopy } from "@/lib/types";
 import styles from "./Vault.module.css";
 
-/**
- * Schermata cassaforte. Sblocco via API → cookie di sessione.
- */
-export default function Vault({ copy, onUnlock }) {
+interface VaultProps {
+  copy: VaultCopy;
+  onUnlock: () => void;
+}
+
+export default function Vault({ copy, onUnlock }: VaultProps) {
   const [value, setValue] = useState("");
   const [shake, setShake] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -27,7 +30,7 @@ export default function Vault({ copy, onUnlock }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: value }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as { success?: boolean };
 
       if (data.success) {
         onUnlock();
@@ -35,7 +38,7 @@ export default function Vault({ copy, onUnlock }) {
         setShake(true);
         setTimeout(() => setShake(false), 500);
       }
-    } catch (_) {
+    } catch {
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } finally {
@@ -47,8 +50,8 @@ export default function Vault({ copy, onUnlock }) {
     <div className={styles.wrap}>
       <div className={styles.grain} />
       <Lock size={28} color="#8a8378" style={{ marginBottom: 24 }} />
-      <p className={styles.eyebrow}>{copy?.vaultEyebrow}</p>
-      <p className={styles.sub}>{copy?.vaultSub}</p>
+      <p className={styles.eyebrow}>{copy.vaultEyebrow}</p>
+      <p className={styles.sub}>{copy.vaultSub}</p>
 
       <div
         className={styles.inputRow}
@@ -59,7 +62,7 @@ export default function Vault({ copy, onUnlock }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={copy?.vaultPlaceholder || "CODICE"}
+          placeholder={copy.vaultPlaceholder || "CODICE"}
           className={styles.input}
           autoCapitalize="characters"
           autoComplete="off"
@@ -71,10 +74,10 @@ export default function Vault({ copy, onUnlock }) {
       </div>
 
       <button onClick={submit} className={styles.btn} disabled={submitting}>
-        {submitting ? "..." : copy?.vaultButton || "apri"}
+        {submitting ? "..." : copy.vaultButton || "apri"}
       </button>
 
-      {shake && <p className={styles.error}>{copy?.vaultError}</p>}
+      {shake && <p className={styles.error}>{copy.vaultError}</p>}
     </div>
   );
 }

@@ -4,18 +4,23 @@ import { join } from "node:path";
 import { put } from "@vercel/blob";
 import { handleUpload } from "@vercel/blob/client";
 import { isAuthenticated } from "@/lib/auth";
+import { isAllowedUploadType, sanitizeFileName } from "@/lib/urls";
 
 export const dynamic = "force-dynamic";
 
-const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+const MAX_BYTES = 100 * 1024 * 1024;
 
 export async function GET() {
+  const auth = await isAuthenticated();
+  if (!auth) {
+    return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
+  }
   return NextResponse.json({
     blobEnabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
   });
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     const auth = await isAuthenticated();
     if (!auth) {
@@ -24,7 +29,6 @@ export async function POST(req) {
 
     const contentType = req.headers.get("content-type") || "";
 
-    // Client upload (Vercel Blob) — bypassa il limite 4.5 MB delle serverless
     if (contentType.includes("application/json")) {
       if (!process.env.BLOB_READ_WRITE_TOKEN) {
         return NextResponse.json(
@@ -51,18 +55,25 @@ export async function POST(req) {
       return NextResponse.json(jsonResponse);
     }
 
-    // Fallback server-side (solo locale / senza Blob)
     const formData = await req.formData();
     const file = formData.get("file");
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: "Nessun file fornito" }, { status: 400 });
     }
 
-    const filename = file.name;
+    if (!isAllowedUploadType(file.type)) {
+      return NextResponse.json({ error: "Tipo file non consentito" }, { status: 400 });
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
+    if (buffer.byteLength > MAX_BYTES) {
+      return NextResponse.json({ error: "File troppo grande" }, { status: 413 });
+    }
+
+    const safeName = `${Date.now()}-${sanitizeFileName(file.name)}`;
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`uploads/${Date.now()}-${filename}`, buffer, {
+      const blob = await put(`uploads/${safeName}`, buffer, {
         access: "public",
         contentType: file.type,
       });
@@ -80,18 +91,15 @@ export async function POST(req) {
     }
 
     const uploadsDir = join(process.cwd(), "public", "uploads");
-    try {
-      await fs.mkdir(uploadsDir, { recursive: true });
-    } catch (_) {}
+    await fs.mkdir(uploadsDir, { recursive: true }).catch(() => {});
 
-    const safeName = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
     const filePath = join(uploadsDir, safeName);
-
     await fs.writeFile(filePath, new Uint8Array(buffer));
 
     return NextResponse.json({ url: `/uploads/${safeName}` });
   } catch (err) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Errore interno";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

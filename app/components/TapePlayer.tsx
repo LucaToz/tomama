@@ -1,13 +1,16 @@
 "use client";
 
 import { Play, Pause } from "lucide-react";
+import type { Song } from "@/lib/types";
 import styles from "./TapePlayer.module.css";
 
-/**
- * Player stile cassetta (solo UI).
- * L'audio reale è gestito dal genitore Diary tramite un unico elemento <audio>.
- */
-export default function TapePlayer({ song, isPlaying, onToggle }) {
+interface TapePlayerProps {
+  song: Song;
+  isPlaying: boolean;
+  onToggle: (song: Song) => void;
+}
+
+export default function TapePlayer({ song, isPlaying, onToggle }: TapePlayerProps) {
   return (
     <div className={`${styles.tape} ${isPlaying ? styles.tapePlaying : ""}`}>
       <button

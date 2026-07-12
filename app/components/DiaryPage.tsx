@@ -1,39 +1,29 @@
 "use client";
 
 import { useRef, useState, useCallback, useLayoutEffect } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValueEvent,
+  type MotionValue,
+} from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
 import TapePlayer from "./TapePlayer";
 import { getSongPhotos } from "@/lib/songs";
+import type { Song } from "@/lib/types";
 import styles from "./DiaryPage.module.css";
 
-/*
-  Ogni pezzo:
-
-  1) INTRO PINNATA (scroll-driven): la cover appare near-fullscreen e si
-     "assesta" vicino al player, mentre lo sfondo colorato entra.
-
-  2) HEADER GLASS STICKY: cover mini + titolo + player restano agganciati in
-     alto (effetto liquid glass) per TUTTA la sezione del pezzo. Quando si
-     arriva al pezzo successivo, questo header si stacca e riparte quello del
-     nuovo pezzo (ogni sezione ha il suo).
-
-  3) CORPO IN FLUSSO: seconda foto → punchline → foglietto. Appaiono una volta
-     e RESTANO visibili, impilati senza sovrapporsi.
-*/
 const INTRO_VH = 140;
 const LYRICS_PEEK_HEIGHT = 88;
 const LYRICS_REVEAL_VH_MIN = 140;
 const LYRICS_REVEAL_VH_MAX = 240;
-/*
-  Foto extra: atVh = scroll reale (in vh) dall'inizio pista alla comparsa.
-  Il progress 0→1 copre (runwayVh - 100vh) di scroll — non la runway intera.
-*/
-const PHOTO_STACK_CONFIG = {
-  1: {
-    runwayVh: 130,
-    photos: [{ atVh: 0, revealVh: 8 }],
-  },
+
+const PHOTO_STACK_CONFIG: Record<
+  number,
+  { runwayVh: number; photos: { atVh: number; revealVh: number }[] }
+> = {
+  1: { runwayVh: 130, photos: [{ atVh: 0, revealVh: 8 }] },
   2: {
     runwayVh: 200,
     photos: [
@@ -51,28 +41,55 @@ const PHOTO_STACK_CONFIG = {
   },
 };
 
-function getPhotoScrollRange(runwayVh) {
+function getPhotoScrollRange(runwayVh: number) {
   return Math.max(runwayVh - 100, 24);
 }
 
-function getPhotoStackConfig(count) {
+function getPhotoStackConfig(count: number) {
   return PHOTO_STACK_CONFIG[count] || PHOTO_STACK_CONFIG[3];
 }
 
-function photoProgressPoints(atVh, revealVh, runwayVh) {
+function photoProgressPoints(atVh: number, revealVh: number, runwayVh: number) {
   const range = getPhotoScrollRange(runwayVh);
   const start = atVh / range;
   const end = Math.min((atVh + revealVh) / range, 1);
   return { start, end };
 }
 
-const PHOTO_STACK_LAYOUT = [
+type PhotoLayout = {
+  x: number;
+  y: number;
+  rotate: number;
+  tape: "yellow" | "red" | "green";
+  tapeRotate: number;
+  tapeLeft: string;
+};
+
+const PHOTO_STACK_LAYOUT: PhotoLayout[] = [
   { x: -14, y: 0, rotate: -8, tape: "yellow", tapeRotate: -4, tapeLeft: "50%" },
   { x: 22, y: 38, rotate: 7, tape: "red", tapeRotate: 6, tapeLeft: "42%" },
   { x: -8, y: 76, rotate: -5, tape: "green", tapeRotate: -3, tapeLeft: "56%" },
 ];
 
-function PhotoStackItemVisual({ src, layout, style, styles: s }) {
+type PhotoVisualStyle = {
+  opacity: number | MotionValue<number>;
+  scale: number | MotionValue<number>;
+  y: number | MotionValue<number>;
+  rotate: number | MotionValue<number>;
+  zIndex: number;
+};
+
+function PhotoStackItemVisual({
+  src,
+  layout,
+  style,
+  styles: s,
+}: {
+  src: string;
+  layout: PhotoLayout;
+  style: PhotoVisualStyle;
+  styles: typeof styles;
+}) {
   const { opacity, scale, y, rotate, zIndex } = style;
   const tapeClass =
     layout.tape === "red"
@@ -100,7 +117,23 @@ function PhotoStackItemVisual({ src, layout, style, styles: s }) {
   );
 }
 
-function PhotoStackItem({ src, index, total, progress, layout, runwayVh, styles: s }) {
+function PhotoStackItem({
+  src,
+  index,
+  total,
+  progress,
+  layout,
+  runwayVh,
+  styles: s,
+}: {
+  src: string;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  layout: PhotoLayout;
+  runwayVh: number;
+  styles: typeof styles;
+}) {
   const [revealed, setRevealed] = useState(false);
   const config = getPhotoStackConfig(total);
   const timing = config.photos[index] || config.photos[config.photos.length - 1];
@@ -144,8 +177,16 @@ function PhotoStackItem({ src, index, total, progress, layout, runwayVh, styles:
   );
 }
 
-function PhotoStackScroll({ photos, songId, styles: s }) {
-  const photoScrollRef = useRef(null);
+function PhotoStackScroll({
+  photos,
+  songId,
+  styles: s,
+}: {
+  photos: string[];
+  songId: number;
+  styles: typeof styles;
+}) {
+  const photoScrollRef = useRef<HTMLDivElement>(null);
   const config = getPhotoStackConfig(photos.length);
   const stackMinHeight = 280 + (photos.length - 1) * 52;
 
@@ -180,7 +221,7 @@ function PhotoStackScroll({ photos, songId, styles: s }) {
   );
 }
 
-async function fetchCoverFile(photoSrc, songId) {
+async function fetchCoverFile(photoSrc: string, songId: number) {
   const src = photoSrc.startsWith("http")
     ? photoSrc
     : `${window.location.origin}${photoSrc.startsWith("/") ? photoSrc : `/${photoSrc}`}`;
@@ -191,6 +232,15 @@ async function fetchCoverFile(photoSrc, songId) {
   return new File([blob], `tomama-${songId}.${ext}`, { type: blob.type || "image/jpeg" });
 }
 
+interface DiaryPageProps {
+  song: Song;
+  index: number;
+  isFirst?: boolean;
+  isPlaying: boolean;
+  onTogglePlay: (song: Song) => void;
+  onEnterSection: (song: Song) => void;
+}
+
 export default function DiaryPage({
   song,
   index,
@@ -198,8 +248,8 @@ export default function DiaryPage({
   isPlaying,
   onTogglePlay,
   onEnterSection,
-}) {
-  const introRef = useRef(null);
+}: DiaryPageProps) {
+  const introRef = useRef<HTMLDivElement>(null);
   const [charCount, setCharCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const typingStarted = useRef(false);
@@ -207,28 +257,21 @@ export default function DiaryPage({
   const rotate1 = index % 2 === 0 ? -4 : 5;
   const extraPhotos = getSongPhotos(song);
 
-  // progress 0→1 sulla sola zona di intro pinnata
   const { scrollYProgress } = useScroll({
     target: introRef,
     offset: ["start start", "end end"],
   });
 
-  /* FASE 1: cover che si assesta vicino al player */
   const coverScale = useTransform(scrollYProgress, [0, 0.65], [1, 0.46]);
   const coverY = useTransform(scrollYProgress, [0, 0.65], ["0%", "-30%"]);
   const coverX = useTransform(scrollYProgress, [0, 0.65], ["0%", "-24%"]);
   const coverOpacity = useTransform(scrollYProgress, [0.55, 0.72], [1, 0]);
   const bgOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 1]);
-
-  /* FASE 2: header (compare quando la cover si è assestata, poi resta) */
   const headerOpacity = useTransform(scrollYProgress, [0.4, 0.62], [0, 1]);
-
-  /* hint "scorri" */
   const hintOpacity = useTransform(scrollYProgress, [0, 0.06], [1, 0]);
 
-  /* FASE 5: testo che si svela a accordion mentre scorri */
-  const sheetScrollRef = useRef(null);
-  const lyricsRef = useRef(null);
+  const sheetScrollRef = useRef<HTMLDivElement>(null);
+  const lyricsRef = useRef<HTMLParagraphElement>(null);
   const [lyricsFullHeight, setLyricsFullHeight] = useState(LYRICS_PEEK_HEIGHT);
 
   useLayoutEffect(() => {
@@ -242,8 +285,6 @@ export default function DiaryPage({
     Math.max(LYRICS_REVEAL_VH_MIN, 100 + Math.round(lyricsFullHeight / 28))
   );
 
-  /* Pista di scroll pinnata: mentre scorri qui il foglietto resta fermo
-     e il testo si apre; solo a progress=1 riprende lo scroll della pagina. */
   const { scrollYProgress: revealProgress } = useScroll({
     target: sheetScrollRef,
     offset: ["start start", "end end"],
@@ -258,7 +299,7 @@ export default function DiaryPage({
   const lyricsFadeOpacity = useTransform(revealProgress, [0, 0.2, 0.88, 1], [1, 1, 0.35, 0]);
 
   const startTyping = useCallback(() => {
-    if (typingStarted.current) return;
+    if (typingStarted.current || !song.punchline) return;
     typingStarted.current = true;
     const full = song.punchline;
     let i = 0;
@@ -280,7 +321,7 @@ export default function DiaryPage({
 
   const share = async () => {
     const url = `${window.location.origin}/pezzo/${song.id}`;
-    const shareData = { title: `Tomama — ${song.title}`, url };
+    const shareData: ShareData = { title: `Tomama — ${song.title}`, url };
 
     if (song.photo && navigator.canShare) {
       try {
@@ -290,21 +331,27 @@ export default function DiaryPage({
           await navigator.share(withFiles);
           return;
         }
-      } catch (_) {}
+      } catch {
+        /* fallback sotto */
+      }
     }
 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
         return;
-      } catch (_) {}
+      } catch {
+        /* fallback sotto */
+      }
     }
 
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
-    } catch (_) {}
+    } catch {
+      /* nessuna azione */
+    }
   };
 
   return (
@@ -314,7 +361,6 @@ export default function DiaryPage({
       onViewportEnter={() => onEnterSection(song)}
       viewport={{ once: false, amount: 0.25 }}
     >
-      {/* sfondo sfocato: sticky full-viewport, opacità legata allo scroll intro */}
       <motion.div className={styles.blurBg} style={{ opacity: bgOpacity }}>
         <div
           className={styles.blurBgInner}
@@ -327,7 +373,6 @@ export default function DiaryPage({
       </motion.div>
 
       <div className={styles.songInner}>
-        {/* HEADER GLASS STICKY (persiste per tutta la sezione) */}
         <motion.header className={styles.stickyHeader} style={{ opacity: headerOpacity }}>
           <div className={styles.headerPolaroid} style={{ transform: `rotate(${rotate1}deg)` }}>
             {song.photo ? (
@@ -344,7 +389,6 @@ export default function DiaryPage({
           </div>
         </motion.header>
 
-        {/* INTRO PINNATA — cover che si assesta */}
         <div ref={introRef} className={styles.intro} style={{ height: `${INTRO_VH}vh` }}>
           <div className={styles.introSticky}>
             <motion.div
@@ -369,13 +413,11 @@ export default function DiaryPage({
           </div>
         </div>
 
-        {/* CORPO — appaiono e RESTANO */}
         <div className={styles.body}>
           {extraPhotos.length > 0 && (
             <PhotoStackScroll photos={extraPhotos} songId={song.id} styles={styles} />
           )}
 
-          {/* FASE 4 — punchline a macchina da scrivere */}
           <motion.div
             className={styles.punchLayer}
             initial={{ opacity: 0 }}
@@ -392,7 +434,6 @@ export default function DiaryPage({
             </p>
           </motion.div>
 
-          {/* FASE 5 — pista pinnata: scroll bloccato sul foglietto finché il testo non è aperto */}
           <div
             ref={sheetScrollRef}
             className={styles.sheetScrollTrack}

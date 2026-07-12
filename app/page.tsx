@@ -3,13 +3,18 @@
 import { useState, useEffect } from "react";
 import Vault from "./components/Vault";
 import Diary from "./components/Diary";
-import { mergeCopy } from "@/lib/copy";
+import { mergeCopy, pickVaultCopy } from "@/lib/copy";
+import type { ConfigResponse, UnlockedConfigResponse } from "@/lib/types";
 import styles from "./page.module.css";
+
+function isUnlockedConfig(config: ConfigResponse | null): config is UnlockedConfigResponse {
+  return Boolean(config?.unlocked);
+}
 
 export default function Home() {
   const [unlocked, setUnlocked] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-  const [config, setConfig] = useState(null);
+  const [config, setConfig] = useState<ConfigResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +27,7 @@ export default function Home() {
       ])
         .then(([data, session]) => {
           if (cancelled) return;
-          setConfig(data);
+          setConfig(data as ConfigResponse);
           if (session.unlocked) {
             setUnlocked(true);
           }
@@ -49,8 +54,16 @@ export default function Home() {
     };
   }, []);
 
-  const handleUnlock = () => {
+  const handleUnlock = async () => {
     setTransitioning(true);
+    try {
+      const data = (await fetch("/api/config", { cache: "no-store" }).then((res) =>
+        res.json()
+      )) as ConfigResponse;
+      setConfig(data);
+    } catch (err) {
+      console.error("Failed to reload config after unlock", err);
+    }
     setTimeout(() => setUnlocked(true), 650);
   };
 
@@ -63,8 +76,11 @@ export default function Home() {
     );
   }
 
-  const songs = config?.songs || [];
-  const copy = mergeCopy(config?.copy);
+  const songs = isUnlockedConfig(config) ? config.songs : [];
+  const vaultCopy = pickVaultCopy(
+    isUnlockedConfig(config) ? config.copy : mergeCopy(config?.copy)
+  );
+  const diaryCopy = isUnlockedConfig(config) ? mergeCopy(config.copy) : mergeCopy(null);
 
   return (
     <main className={styles.app}>
@@ -77,10 +93,10 @@ export default function Home() {
               : "circle(150% at 50% 50%)",
           }}
         >
-          <Vault copy={copy} onUnlock={handleUnlock} />
+          <Vault copy={vaultCopy} onUnlock={handleUnlock} />
         </div>
       )}
-      {unlocked && <Diary songs={songs} copy={copy} />}
+      {unlocked && <Diary songs={songs} copy={diaryCopy} />}
     </main>
   );
 }

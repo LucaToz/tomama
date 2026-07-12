@@ -12,7 +12,7 @@ export const metadata = {
   title: "Tomama — Admin",
 };
 
-export default function AdminLayout({ children }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`${poppins.variable} ${styles.adminRoot}`}>
       {children}
