@@ -385,6 +385,27 @@ export default function AdminPortal() {
                     value={copy.diaryFooter}
                     onChange={(e) => updateCopyField("diaryFooter", e.target.value)}
                   />
+                  <span className={styles.helpText}>
+                    Testo introduttivo. I link instagram / spotify compaiono accanto se compilati sotto.
+                  </span>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Link Instagram</label>
+                  <input
+                    type="url"
+                    placeholder="https://instagram.com/..."
+                    value={copy.instagramUrl || ""}
+                    onChange={(e) => updateCopyField("instagramUrl", e.target.value)}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Link Spotify</label>
+                  <input
+                    type="url"
+                    placeholder="https://open.spotify.com/..."
+                    value={copy.spotifyUrl || ""}
+                    onChange={(e) => updateCopyField("spotifyUrl", e.target.value)}
+                  />
                 </div>
                 <div className={styles.inputGroup}>
                   <label>Testo caricamento</label>

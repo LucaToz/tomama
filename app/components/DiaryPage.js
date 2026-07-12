@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useLayoutEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
 import TapePlayer from "./TapePlayer";
 import { getSongPhotos } from "@/lib/songs";
@@ -25,6 +25,46 @@ const INTRO_VH = 140;
 const LYRICS_PEEK_HEIGHT = 88;
 const LYRICS_REVEAL_VH_MIN = 140;
 const LYRICS_REVEAL_VH_MAX = 240;
+/*
+  Foto extra: atVh = scroll reale (in vh) dall'inizio pista alla comparsa.
+  Il progress 0→1 copre (runwayVh - 100vh) di scroll — non la runway intera.
+*/
+const PHOTO_STACK_CONFIG = {
+  1: {
+    runwayVh: 130,
+    photos: [{ atVh: 0, revealVh: 8 }],
+  },
+  2: {
+    runwayVh: 200,
+    photos: [
+      { atVh: 0, revealVh: 8 },
+      { atVh: 55, revealVh: 10 },
+    ],
+  },
+  3: {
+    runwayVh: 250,
+    photos: [
+      { atVh: 0, revealVh: 8 },
+      { atVh: 50, revealVh: 10 },
+      { atVh: 100, revealVh: 10 },
+    ],
+  },
+};
+
+function getPhotoScrollRange(runwayVh) {
+  return Math.max(runwayVh - 100, 24);
+}
+
+function getPhotoStackConfig(count) {
+  return PHOTO_STACK_CONFIG[count] || PHOTO_STACK_CONFIG[3];
+}
+
+function photoProgressPoints(atVh, revealVh, runwayVh) {
+  const range = getPhotoScrollRange(runwayVh);
+  const start = atVh / range;
+  const end = Math.min((atVh + revealVh) / range, 1);
+  return { start, end };
+}
 
 const PHOTO_STACK_LAYOUT = [
   { x: -14, y: 0, rotate: -8, tape: "yellow", tapeRotate: -4, tapeLeft: "50%" },
@@ -32,30 +72,113 @@ const PHOTO_STACK_LAYOUT = [
   { x: -8, y: 76, rotate: -5, tape: "green", tapeRotate: -3, tapeLeft: "56%" },
 ];
 
-const photoStackVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.24, delayChildren: 0.05 },
-  },
-};
+function PhotoStackItemVisual({ src, layout, style, styles: s }) {
+  const { opacity, scale, y, rotate, zIndex } = style;
+  const tapeClass =
+    layout.tape === "red"
+      ? s.washiRed
+      : layout.tape === "green"
+        ? s.washiGreen
+        : s.washiYellow;
 
-const photoItemVariants = {
-  hidden: (layout) => ({
-    opacity: 0,
-    scale: 1.2,
-    x: layout.x,
-    y: layout.y - 120,
-    rotate: layout.rotate + 16,
-  }),
-  visible: (layout) => ({
-    opacity: 1,
-    scale: 1,
-    x: layout.x,
-    y: layout.y,
-    rotate: layout.rotate,
-    transition: { type: "spring", stiffness: 290, damping: 19 },
-  }),
-};
+  return (
+    <motion.div
+      className={s.photoStackItem}
+      style={{ x: layout.x, opacity, scale, y, rotate, zIndex }}
+    >
+      <div className={s.coverPhoto}>
+        <img src={src} alt="" />
+      </div>
+      <div
+        className={tapeClass}
+        style={{
+          transform: `translateX(-50%) rotate(${layout.tapeRotate}deg)`,
+          left: layout.tapeLeft,
+        }}
+      />
+    </motion.div>
+  );
+}
+
+function PhotoStackItem({ src, index, total, progress, layout, runwayVh, styles: s }) {
+  const [revealed, setRevealed] = useState(false);
+  const config = getPhotoStackConfig(total);
+  const timing = config.photos[index] || config.photos[config.photos.length - 1];
+  const { start, end } = photoProgressPoints(timing.atVh, timing.revealVh, runwayVh);
+
+  useMotionValueEvent(progress, "change", (v) => {
+    if (typeof v === "number" && v >= end) {
+      setRevealed(true);
+    }
+  });
+
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const scale = useTransform(progress, [start, end], [1.15, 1]);
+  const y = useTransform(progress, [start, end], [layout.y - 100, layout.y]);
+  const rotate = useTransform(progress, [start, end], [layout.rotate + 12, layout.rotate]);
+
+  if (revealed) {
+    return (
+      <PhotoStackItemVisual
+        src={src}
+        layout={layout}
+        style={{
+          opacity: 1,
+          scale: 1,
+          y: layout.y,
+          rotate: layout.rotate,
+          zIndex: index + 1,
+        }}
+        styles={s}
+      />
+    );
+  }
+
+  return (
+    <PhotoStackItemVisual
+      src={src}
+      layout={layout}
+      style={{ opacity, scale, y, rotate, zIndex: index + 1 }}
+      styles={s}
+    />
+  );
+}
+
+function PhotoStackScroll({ photos, songId, styles: s }) {
+  const photoScrollRef = useRef(null);
+  const config = getPhotoStackConfig(photos.length);
+  const stackMinHeight = 280 + (photos.length - 1) * 52;
+
+  const { scrollYProgress: photoProgress } = useScroll({
+    target: photoScrollRef,
+    offset: ["start start", "end end"],
+  });
+
+  return (
+    <div
+      ref={photoScrollRef}
+      className={s.photoScrollTrack}
+      style={{ height: `${config.runwayVh}vh` }}
+    >
+      <div className={s.photoStackSticky}>
+        <div className={s.photoStack} style={{ minHeight: stackMinHeight }}>
+          {photos.map((src, i) => (
+            <PhotoStackItem
+              key={`${songId}-photo-${i}`}
+              src={src}
+              index={i}
+              total={photos.length}
+              progress={photoProgress}
+              runwayVh={config.runwayVh}
+              layout={PHOTO_STACK_LAYOUT[i] || PHOTO_STACK_LAYOUT[0]}
+              styles={s}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 async function fetchCoverFile(photoSrc, songId) {
   const src = photoSrc.startsWith("http")
@@ -83,9 +206,6 @@ export default function DiaryPage({
 
   const rotate1 = index % 2 === 0 ? -4 : 5;
   const extraPhotos = getSongPhotos(song);
-  const stackMinHeight = extraPhotos.length
-    ? 280 + (extraPhotos.length - 1) * 52
-    : 0;
 
   // progress 0→1 sulla sola zona di intro pinnata
   const { scrollYProgress } = useScroll({
@@ -137,7 +257,6 @@ export default function DiaryPage({
   const shareOpacity = useTransform(revealProgress, [0.92, 1], [0, 1]);
   const lyricsFadeOpacity = useTransform(revealProgress, [0, 0.2, 0.88, 1], [1, 1, 0.35, 0]);
 
-  /* punchline a macchina da scrivere, quando entra in vista */
   const startTyping = useCallback(() => {
     if (typingStarted.current) return;
     typingStarted.current = true;
@@ -150,6 +269,11 @@ export default function DiaryPage({
     };
     tick();
   }, [song.punchline]);
+
+  useLayoutEffect(() => {
+    typingStarted.current = false;
+    setCharCount(0);
+  }, [song.punchline, song.id]);
 
   const typedText = song.punchline.slice(0, charCount);
   const typing = charCount > 0 && charCount < song.punchline.length;
@@ -248,44 +372,7 @@ export default function DiaryPage({
         {/* CORPO — appaiono e RESTANO */}
         <div className={styles.body}>
           {extraPhotos.length > 0 && (
-            <motion.div
-              className={styles.photoStack}
-              style={{ minHeight: stackMinHeight }}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.35 }}
-              variants={photoStackVariants}
-            >
-              {extraPhotos.map((src, i) => {
-                const layout = PHOTO_STACK_LAYOUT[i] || PHOTO_STACK_LAYOUT[0];
-                const tapeClass =
-                  layout.tape === "red"
-                    ? styles.washiRed
-                    : layout.tape === "green"
-                      ? styles.washiGreen
-                      : styles.washiYellow;
-                return (
-                  <motion.div
-                    key={`${song.id}-photo-${i}`}
-                    className={styles.photoStackItem}
-                    custom={layout}
-                    variants={photoItemVariants}
-                    style={{ zIndex: i + 1 }}
-                  >
-                    <div className={styles.coverPhoto}>
-                      <img src={src} alt="" />
-                    </div>
-                    <div
-                      className={tapeClass}
-                      style={{
-                        transform: `translateX(-50%) rotate(${layout.tapeRotate}deg)`,
-                        left: layout.tapeLeft,
-                      }}
-                    />
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+            <PhotoStackScroll photos={extraPhotos} songId={song.id} styles={styles} />
           )}
 
           {/* FASE 4 — punchline a macchina da scrivere */}

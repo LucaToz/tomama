@@ -139,7 +139,37 @@ export default function Diary({ songs = [], copy = {} }) {
       </section>
 
       <footer className={styles.footer}>
-        <p className={styles.note}>{copy.diaryFooter}</p>
+        <p className={styles.note}>
+          {copy.diaryFooter}
+          {(copy.instagramUrl || copy.spotifyUrl) && (
+            <span className={styles.footerLinks}>
+              {copy.instagramUrl && (
+                <>
+                  {" "}
+                  <a
+                    href={copy.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.footerLink}
+                  >
+                    instagram
+                  </a>
+                </>
+              )}
+              {copy.instagramUrl && copy.spotifyUrl && " / "}
+              {copy.spotifyUrl && (
+                <a
+                  href={copy.spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.footerLink}
+                >
+                  spotify
+                </a>
+              )}
+            </span>
+          )}
+        </p>
       </footer>
     </div>
   );

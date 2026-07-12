@@ -81,6 +81,21 @@
   margin-top: 20px;
 }
 
+.footerLinks {
+  white-space: nowrap;
+}
+
+.footerLink {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.footerLink:hover {
+  border-bottom-color: var(--accent);
+}
+
 .playlist {
   margin: 48px 24px 0;
   padding: 32px 20px 40px;

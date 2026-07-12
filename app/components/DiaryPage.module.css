@@ -115,7 +115,7 @@
 
 .title {
   font-family: var(--f-rubik);
-  font-size: 21px; /* leggermente più grande per compensare lo stile distressed */
+  font-size: 21px;
   margin: 1px 0 8px;
   color: var(--ink);
   line-height: 1.1;
@@ -220,6 +220,19 @@
   padding: 0 22px 32px;
 }
 
+.photoScrollTrack {
+  position: relative;
+  margin-top: -48vh;
+  margin-bottom: 10vh;
+}
+
+.photoStackSticky {
+  position: sticky;
+  top: 16vh;
+  top: 16svh;
+  top: 16dvh;
+}
+
 .photoStack {
   position: relative;
   width: min(82vw, 340px);
@@ -262,7 +275,7 @@
 .punchLayer {
   display: flex;
   justify-content: center;
-  margin: 0 auto 7vh;
+  margin: 6vh auto 7vh;
 }
 
 .punchline {
@@ -288,14 +301,15 @@
 /* ---------- FOGLIETTO (pista scroll pinnata) ---------- */
 .sheetScrollTrack {
   position: relative;
+  margin-top: 6vh;
   /* altezza inline: "budget" di scroll prima che la pagina riprenda */
 }
 
 .sheet {
   position: sticky;
-  top: 14vh;
-  top: 14svh;
-  top: 14dvh;
+  top: 24vh;
+  top: 24svh;
+  top: 24dvh;
   max-width: 520px;
   margin: 0 auto;
   background: var(--paper-2);
