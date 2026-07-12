@@ -432,6 +432,9 @@ export default function DiaryPage({
             <p className={styles.punchline}>
               <span className={styles.quote}>&ldquo;</span>
               <span>{typedText}</span>
+              {!typing && charCount > 0 && (
+                <span className={styles.quote}>&rdquo;</span>
+              )}
               <span className={styles.typeCursor} style={{ opacity: typing ? 1 : 0 }}>
                 |
               </span>
