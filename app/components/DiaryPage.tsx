@@ -383,10 +383,14 @@ export default function DiaryPage({
             <div className={styles.washiMini} />
           </div>
           <div className={styles.headerText}>
-            <span className={styles.index}>#{String(index + 1).padStart(2, "0")}</span>
-            <h2 className={styles.title}>{song.title}</h2>
-            <TapePlayer song={song} isPlaying={isPlaying} onToggle={onTogglePlay} />
-          </div>
+          <span className={styles.quote}>&ldquo;</span>
+          <span>{typedText}</span>
+          {!typing && charCount > 0 && (
+            <span className={styles.quote}>&rdquo;</span>
+          )}
+          <span className={styles.typeCursor} style={{ opacity: typing ? 1 : 0 }}>
+            |
+          </span>
         </motion.header>
 
         <div ref={introRef} className={styles.intro} style={{ height: `${INTRO_VH}vh` }}>
