@@ -13,21 +13,40 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/config", { cache: "no-store" }).then((res) => res.json()),
-      fetch("/api/vault/check").then((res) => res.json()),
-    ])
-      .then(([data, session]) => {
-        setConfig(data);
-        if (session.unlocked) {
-          setUnlocked(true);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load config", err);
-        setLoading(false);
-      });
+    let cancelled = false;
+
+    const loadConfig = () =>
+      Promise.all([
+        fetch("/api/config", { cache: "no-store" }).then((res) => res.json()),
+        fetch("/api/vault/check", { cache: "no-store" }).then((res) => res.json()),
+      ])
+        .then(([data, session]) => {
+          if (cancelled) return;
+          setConfig(data);
+          if (session.unlocked) {
+            setUnlocked(true);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          console.error("Failed to load config", err);
+          setLoading(false);
+        });
+
+    loadConfig();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        loadConfig();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   const handleUnlock = () => {

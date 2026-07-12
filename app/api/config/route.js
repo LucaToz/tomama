@@ -9,7 +9,10 @@ export async function GET() {
     const config = await readConfig();
     return NextResponse.json(config, {
       headers: {
-        "Cache-Control": "no-store, max-age=0",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
+        Pragma: "no-cache",
       },
     });
   } catch (err) {
