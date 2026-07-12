@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useLayoutEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
 import TapePlayer from "./TapePlayer";
+import { getSongPhotos } from "@/lib/songs";
 import styles from "./DiaryPage.module.css";
 
 /*
@@ -24,6 +25,37 @@ const INTRO_VH = 140;
 const LYRICS_PEEK_HEIGHT = 88;
 const LYRICS_REVEAL_VH_MIN = 140;
 const LYRICS_REVEAL_VH_MAX = 240;
+
+const PHOTO_STACK_LAYOUT = [
+  { x: -14, y: 0, rotate: -8, tape: "yellow", tapeRotate: -4, tapeLeft: "50%" },
+  { x: 22, y: 38, rotate: 7, tape: "red", tapeRotate: 6, tapeLeft: "42%" },
+  { x: -8, y: 76, rotate: -5, tape: "green", tapeRotate: -3, tapeLeft: "56%" },
+];
+
+const photoStackVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.24, delayChildren: 0.05 },
+  },
+};
+
+const photoItemVariants = {
+  hidden: (layout) => ({
+    opacity: 0,
+    scale: 1.2,
+    x: layout.x,
+    y: layout.y - 120,
+    rotate: layout.rotate + 16,
+  }),
+  visible: (layout) => ({
+    opacity: 1,
+    scale: 1,
+    x: layout.x,
+    y: layout.y,
+    rotate: layout.rotate,
+    transition: { type: "spring", stiffness: 290, damping: 19 },
+  }),
+};
 
 async function fetchCoverFile(photoSrc, songId) {
   const src = photoSrc.startsWith("http")
@@ -50,7 +82,10 @@ export default function DiaryPage({
   const typingStarted = useRef(false);
 
   const rotate1 = index % 2 === 0 ? -4 : 5;
-  const rotate2 = index % 2 === 0 ? 6 : -5;
+  const extraPhotos = getSongPhotos(song);
+  const stackMinHeight = extraPhotos.length
+    ? 280 + (extraPhotos.length - 1) * 52
+    : 0;
 
   // progress 0→1 sulla sola zona di intro pinnata
   const { scrollYProgress } = useScroll({
@@ -212,24 +247,46 @@ export default function DiaryPage({
 
         {/* CORPO — appaiono e RESTANO */}
         <div className={styles.body}>
-          {/* FASE 3 — seconda foto */}
-          <motion.div
-            className={styles.photo2}
-            style={{ rotate: rotate2 }}
-            initial={{ opacity: 0, y: 48, scale: 0.9 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ type: "spring", stiffness: 110, damping: 15 }}
-          >
-            <div className={styles.coverPhoto}>
-              {song.photo2 ? (
-                <img src={song.photo2} alt="" />
-              ) : (
-                <span className={styles.placeholder}>FOTO 2 QUI</span>
-              )}
-            </div>
-            <div className={styles.washiRed} />
-          </motion.div>
+          {extraPhotos.length > 0 && (
+            <motion.div
+              className={styles.photoStack}
+              style={{ minHeight: stackMinHeight }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.35 }}
+              variants={photoStackVariants}
+            >
+              {extraPhotos.map((src, i) => {
+                const layout = PHOTO_STACK_LAYOUT[i] || PHOTO_STACK_LAYOUT[0];
+                const tapeClass =
+                  layout.tape === "red"
+                    ? styles.washiRed
+                    : layout.tape === "green"
+                      ? styles.washiGreen
+                      : styles.washiYellow;
+                return (
+                  <motion.div
+                    key={`${song.id}-photo-${i}`}
+                    className={styles.photoStackItem}
+                    custom={layout}
+                    variants={photoItemVariants}
+                    style={{ zIndex: i + 1 }}
+                  >
+                    <div className={styles.coverPhoto}>
+                      <img src={src} alt="" />
+                    </div>
+                    <div
+                      className={tapeClass}
+                      style={{
+                        transform: `translateX(-50%) rotate(${layout.tapeRotate}deg)`,
+                        left: layout.tapeLeft,
+                      }}
+                    />
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
 
           {/* FASE 4 — punchline a macchina da scrivere */}
           <motion.div

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { DEFAULT_COPY, mergeCopy } from "@/lib/copy";
-import { createEmptySong } from "@/lib/songs";
+import { createEmptySong, getSongPhotos, MAX_EXTRA_PHOTOS } from "@/lib/songs";
 import { Lock, LogOut, Save, Music, Image as ImageIcon, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -91,6 +91,18 @@ export default function AdminPortal() {
     );
   };
 
+  const updateSongPhotoAt = (id, index, value) => {
+    setSongs((prevSongs) =>
+      prevSongs.map((s) => {
+        if (s.id !== id) return s;
+        const slots = Array.from({ length: MAX_EXTRA_PHOTOS }, (_, i) => getSongPhotos(s)[i] || "");
+        slots[index] = value || "";
+        const { photo2, ...rest } = s;
+        return { ...rest, photos: slots.filter(Boolean) };
+      })
+    );
+  };
+
   const addSong = () => {
     const nextId = songs.reduce((max, s) => Math.max(max, s.id), 0) + 1;
     const newSong = createEmptySong(nextId);
@@ -152,7 +164,12 @@ export default function AdminPortal() {
       }
 
       if (url) {
-        updateSongField(songId, field, url);
+        if (field.startsWith("photos.")) {
+          const index = Number(field.split(".")[1]);
+          updateSongPhotoAt(songId, index, url);
+        } else {
+          updateSongField(songId, field, url);
+        }
       } else {
         alert("Errore di caricamento: risposta senza URL");
       }
@@ -437,7 +454,11 @@ export default function AdminPortal() {
                         </button>
                       </div>
                       {song.audioSrc ? <Music size={14} className={styles.indicatorActive} /> : <Music size={14} className={styles.indicatorInactive} />}
-                      {song.photo ? <ImageIcon size={14} className={styles.indicatorActive} /> : <ImageIcon size={14} className={styles.indicatorInactive} />}
+                      {song.photo || getSongPhotos(song).length > 0 ? (
+                        <ImageIcon size={14} className={styles.indicatorActive} />
+                      ) : (
+                        <ImageIcon size={14} className={styles.indicatorInactive} />
+                      )}
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
                   </div>
@@ -499,37 +520,48 @@ export default function AdminPortal() {
                         )}
                       </div>
 
-                      {/* Second Photo */}
-                      <div className={styles.fileFieldRow}>
-                        <div className={styles.inputGroup}>
-                          <label>Seconda Foto (Polaroid 2)</label>
-                          <div className={styles.fileInputWrapper}>
-                            <input
-                              type="text"
-                              value={song.photo2 || ""}
-                              onChange={(e) => updateSongField(song.id, "photo2", e.target.value)}
-                              placeholder="/songs/song1-photo2.jpg o URL"
-                              className={styles.urlInput}
-                            />
-                            <label className={styles.uploadBtnLabel}>
-                              Scegli File
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleFileUpload(song.id, "photo2", e)}
-                                className={styles.hiddenFileInput}
-                              />
-                            </label>
-                          </div>
-                          {uploading.songId === song.id && uploading.field === "photo2" && (
-                            <p className={styles.uploadingText}>Caricamento in corso...</p>
-                          )}
-                        </div>
-                        {song.photo2 && (
-                          <div className={styles.previewContainer}>
-                            <img src={song.photo2} alt="Preview photo 2" className={styles.thumbnail} />
-                          </div>
-                        )}
+                      {/* Foto extra (fino a 3) */}
+                      <div className={styles.extraPhotosBlock}>
+                        <p className={styles.extraPhotosLabel}>
+                          Foto extra (max {MAX_EXTRA_PHOTOS}) — compaiono impilate nel diario
+                        </p>
+                        {Array.from({ length: MAX_EXTRA_PHOTOS }, (_, photoIndex) => {
+                          const photoValue = getSongPhotos(song)[photoIndex] || "";
+                          const fieldKey = `photos.${photoIndex}`;
+                          return (
+                            <div key={fieldKey} className={styles.fileFieldRow}>
+                              <div className={styles.inputGroup}>
+                                <label>Foto extra {photoIndex + 1}</label>
+                                <div className={styles.fileInputWrapper}>
+                                  <input
+                                    type="text"
+                                    value={photoValue}
+                                    onChange={(e) => updateSongPhotoAt(song.id, photoIndex, e.target.value)}
+                                    placeholder="/uploads/foto.jpg o URL"
+                                    className={styles.urlInput}
+                                  />
+                                  <label className={styles.uploadBtnLabel}>
+                                    Scegli File
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => handleFileUpload(song.id, fieldKey, e)}
+                                      className={styles.hiddenFileInput}
+                                    />
+                                  </label>
+                                </div>
+                                {uploading.songId === song.id && uploading.field === fieldKey && (
+                                  <p className={styles.uploadingText}>Caricamento in corso...</p>
+                                )}
+                              </div>
+                              {photoValue ? (
+                                <div className={styles.previewContainer}>
+                                  <img src={photoValue} alt={`Preview foto ${photoIndex + 1}`} className={styles.thumbnail} />
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
                       </div>
 
                       {/* Audio File */}

@@ -495,6 +495,21 @@
   gap: 20px;
 }
 
+.extraPhotosBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+}
+
+.extraPhotosLabel {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 600px) {
   .fileFieldRow {
     flex-direction: column;

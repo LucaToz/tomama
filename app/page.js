@@ -13,10 +13,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/config", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
+    Promise.all([
+      fetch("/api/config", { cache: "no-store" }).then((res) => res.json()),
+      fetch("/api/vault/check").then((res) => res.json()),
+    ])
+      .then(([data, session]) => {
         setConfig(data);
+        if (session.unlocked) {
+          setUnlocked(true);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -39,7 +44,6 @@ export default function Home() {
     );
   }
 
-  const vaultCode = config?.vaultCode || "TOMAMA";
   const songs = config?.songs || [];
   const copy = mergeCopy(config?.copy);
 
@@ -54,7 +58,7 @@ export default function Home() {
               : "circle(150% at 50% 50%)",
           }}
         >
-          <Vault vaultCode={vaultCode} copy={copy} onUnlock={handleUnlock} />
+          <Vault copy={copy} onUnlock={handleUnlock} />
         </div>
       )}
       {unlocked && <Diary songs={songs} copy={copy} />}

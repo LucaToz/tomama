@@ -31,13 +31,14 @@
 .band {
   font-family: var(--f-rubik);
   font-size: 52px;
+  text-transform: uppercase;
   margin: 0;
   color: var(--ink);
 }
 
 .sub {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: 16px;
   color: var(--muted);
   margin-top: 10px;
   letter-spacing: 0.5px;

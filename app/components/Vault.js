@@ -5,24 +5,41 @@ import { Lock } from "lucide-react";
 import styles from "./Vault.module.css";
 
 /**
- * Schermata cassaforte. Sblocco = vaultCode prop.
+ * Schermata cassaforte. Sblocco via API → cookie di sessione.
  */
-export default function Vault({ vaultCode, copy, onUnlock }) {
+export default function Vault({ copy, onUnlock }) {
   const [value, setValue] = useState("");
   const [shake, setShake] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  const submit = () => {
-    const codeToCheck = (vaultCode || "TOMAMA").trim().toUpperCase();
-    if (value.trim().toUpperCase() === codeToCheck) {
-      onUnlock();
-    } else {
+  const submit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/vault/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: value }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        onUnlock();
+      } else {
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+      }
+    } catch (_) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -48,12 +65,13 @@ export default function Vault({ vaultCode, copy, onUnlock }) {
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
+          disabled={submitting}
         />
         <span className={styles.cursor}>_</span>
       </div>
 
-      <button onClick={submit} className={styles.btn}>
-        {copy?.vaultButton || "apri"}
+      <button onClick={submit} className={styles.btn} disabled={submitting}>
+        {submitting ? "..." : copy?.vaultButton || "apri"}
       </button>
 
       {shake && <p className={styles.error}>{copy?.vaultError}</p>}

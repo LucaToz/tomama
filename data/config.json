@@ -2,13 +2,13 @@
   "vaultCode": "180726",
   "copy": {
     "vaultEyebrow": "I PEZZI NUOVI NON SONO ANCORA ONLINE",
-    "vaultSub": "Se eri lì, lo sai.",
+    "vaultSub": "Un'anteprima solo per te",
     "vaultPlaceholder": "CODICE",
     "vaultButton": "apri",
     "vaultError": "non è quello giusto.",
     "diaryStamp": "SBLOCCATO",
     "diaryBand": "Tomama",
-    "diarySub": "diario di prova — {count} pezzi · 18 luglio, Crema",
+    "diarySub": "Non abbiamo ancora messo questi pezzi da nessuna parte. Sono qui, in un quaderno che abbiamo tenuto tra una prova e l'altra: foto storte, appunti scritti al volo, i testi interi per chi vuole leggerli davvero. Scrolla per aprire ogni pagina — un pezzo alla volta, come li abbiamo vissuti noi.",
     "diaryFooter": "resta aggiornato → instagram / whatsapp",
     "playlistTitle": "tutti i pezzi",
     "loadingText": "caricamento..."
@@ -18,91 +18,93 @@
       "id": 1,
       "title": "Antologia Rurale",
       "photo": "/songs/song1.jpg",
-      "photo2": "/uploads/1783781671129-WhatsApp_Image_2026-07-11_at_12.13.26.jpeg",
       "punchline": "lavorare tanto, sognare il giusto",
       "lyrics": "Chiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nÈ ora tempo di finirla di fare gli americani,\nme lo dicevan spesso da bamboccio.\n\nCrapa da marmo,\nMica de coccio.\n\nCampari, nebbia, palloncini e paranoia.\nIgnaro del tempo che vi ascorreva.\n\nChiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nAbituati a lavorar tanto e sognare il giusto.\nHai vissuto un anno, ma è passato un lustro.\nSono la persona giusta. Sono quello che cerchi.\nCercando la quadratura di più e più cerchi.\n\nIgnaro del tempo che via mi scorre.\n\nChiedimi se son felice, fatti mandare a cagare.\nParlami come se stessimo per litigare,\nSchietto e sincero, così mi gusta.\nParole sferzate come colpi di frusta.\n\nAbituati a lavorar tanto e sognare il giusto.\nHai vissuto un anno, ma è passato un lustro.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": [
+        "/uploads/1783781671129-WhatsApp_Image_2026-07-11_at_12.13.26.jpeg"
+      ]
     },
     {
       "id": 2,
       "title": "Pezzo 2 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 3,
       "title": "Pezzo 3 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 4,
       "title": "Pezzo 4 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 5,
       "title": "Pezzo 5 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 6,
       "title": "Pezzo 6 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 7,
       "title": "Pezzo 7 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 8,
       "title": "Pezzo 8 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     },
     {
       "id": 9,
       "title": "Pezzo 9 — TITOLO QUI",
       "photo": null,
-      "photo2": null,
       "punchline": "PUNCHLINE QUI",
       "lyrics": "TESTO COMPLETO QUI.",
       "audioSrc": null,
-      "duration": "—:—"
+      "duration": "—:—",
+      "photos": []
     }
   ]
 }

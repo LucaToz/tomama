@@ -220,23 +220,43 @@
   padding: 0 22px 32px;
 }
 
-.photo2 {
+.photoStack {
   position: relative;
-  width: min(78vw, 310px);
+  width: min(82vw, 340px);
   margin: 0 auto 7vh;
+}
+
+.photoStackItem {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(78vw, 310px);
+  margin-left: calc(min(78vw, 310px) / -2);
   background: #fff;
   padding: 12px 12px 30px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transform-origin: center top;
+}
+
+.washiYellow,
+.washiRed,
+.washiGreen {
+  position: absolute;
+  top: -10px;
+  width: 54px;
+  height: 20px;
+}
+
+.washiYellow {
+  background: var(--washi);
 }
 
 .washiRed {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-3deg);
-  width: 54px;
-  height: 20px;
   background: rgba(200, 29, 61, 0.5);
+}
+
+.washiGreen {
+  background: rgba(120, 150, 90, 0.55);
 }
 
 .punchLayer {
