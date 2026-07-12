@@ -98,6 +98,53 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
     setPlayingId((cur) => (cur !== null && cur !== song.id ? null : cur));
   }, []);
 
+  /* Sezione attiva = quella che contiene il punto ~22vh (zona player sticky) */
+  useEffect(() => {
+    if (!songs.length) return;
+
+    let lastActiveId: number | null = null;
+    let ticking = false;
+
+    const getActiveSongId = (): number | null => {
+      const anchor = window.innerHeight * 0.22;
+      let activeId: number | null = null;
+
+      document.querySelectorAll("[data-song-section]").forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        if (rect.top <= anchor && rect.bottom > anchor) {
+          activeId = Number((node as HTMLElement).dataset.songId);
+        }
+      });
+
+      return activeId;
+    };
+
+    const updateActiveSection = () => {
+      ticking = false;
+      const activeId = getActiveSongId();
+      if (activeId === null || activeId === lastActiveId) return;
+
+      lastActiveId = activeId;
+      const song = songs.find((s) => s.id === activeId);
+      if (song) handleEnterSection(song);
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateActiveSection);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    updateActiveSection();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [songs, handleEnterSection]);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash.startsWith("#pezzo-")) return;
@@ -130,7 +177,6 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
           isFirst={i === 0}
           isPlaying={playingId === song.id}
           onTogglePlay={togglePlay}
-          onEnterSection={handleEnterSection}
         />
       ))}
 
