@@ -391,7 +391,8 @@ export default function AdminPortal() {
                     onChange={(e) => updateCopyField("diaryFooter", e.target.value)}
                   />
                   <span className={styles.helpText}>
-                    Testo introduttivo. I link instagram / spotify compaiono accanto se compilati sotto.
+                    Solo il testo prima dei link (es. «resta aggiornato →»). Instagram e Spotify compaiono
+                    dopo, con i link impostati sotto.
                   </span>
                 </div>
                 <div className={styles.inputGroup}>

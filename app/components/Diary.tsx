@@ -205,10 +205,10 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
         <p className={styles.note}>
           {copy.diaryFooter}
           {(copy.instagramUrl || copy.spotifyUrl) && (
-            <span className={styles.footerLinks}>
-              {copy.instagramUrl && (
-                <>
-                  {" "}
+            <>
+              {" "}
+              <span className={styles.footerLinks}>
+                {copy.instagramUrl && (
                   <a
                     href={copy.instagramUrl}
                     target="_blank"
@@ -217,20 +217,20 @@ export default function Diary({ songs = [], copy = {} as CopyConfig }: DiaryProp
                   >
                     instagram
                   </a>
-                </>
-              )}
-              {copy.instagramUrl && copy.spotifyUrl && " / "}
-              {copy.spotifyUrl && (
-                <a
-                  href={copy.spotifyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.footerLink}
-                >
-                  spotify
-                </a>
-              )}
-            </span>
+                )}
+                {copy.instagramUrl && copy.spotifyUrl && " / "}
+                {copy.spotifyUrl && (
+                  <a
+                    href={copy.spotifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.footerLink}
+                  >
+                    spotify
+                  </a>
+                )}
+              </span>
+            </>
           )}
         </p>
       </footer>

@@ -2,6 +2,22 @@ import { sanitizeExternalUrl } from "./urls";
 import { sanitizeInlineHtml } from "./html";
 import type { CopyConfig } from "./types";
 
+/** Rimuove suffissi social legacy dal footer (es. "→ instagram / whatsapp"). */
+export function normalizeDiaryFooter(footer: string): string {
+  const text = (footer || DEFAULT_COPY.diaryFooter).trim();
+  const arrowIdx = text.indexOf("→");
+  if (arrowIdx === -1) return text || DEFAULT_COPY.diaryFooter;
+
+  const prefix = text.slice(0, arrowIdx + 1).trim();
+  const suffix = text.slice(arrowIdx + 1).trim();
+  if (!suffix) return prefix;
+
+  const isLegacySocial = /^(instagram|whatsapp|spotify)(\s*\/\s*(instagram|whatsapp|spotify))*$/i.test(
+    suffix
+  );
+  return isLegacySocial ? prefix : text;
+}
+
 export const DEFAULT_COPY: CopyConfig = {
   vaultEyebrow: "I PEZZI NUOVI NON SONO ANCORA ONLINE",
   vaultSub: "Se eri lì, lo sai.",
@@ -22,6 +38,7 @@ export function mergeCopy(copy?: Partial<CopyConfig> | null): CopyConfig {
   const merged = { ...DEFAULT_COPY, ...(copy || {}) };
   return {
     ...merged,
+    diaryFooter: normalizeDiaryFooter(merged.diaryFooter),
     instagramUrl: sanitizeExternalUrl(merged.instagramUrl),
     spotifyUrl: sanitizeExternalUrl(merged.spotifyUrl),
   };
