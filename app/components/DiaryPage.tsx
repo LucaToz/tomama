@@ -4,8 +4,8 @@ import { useRef, useState, useCallback, useLayoutEffect } from "react";
 import {
   motion,
   useScroll,
+  useSpring,
   useTransform,
-  useMotionValueEvent,
   type MotionValue,
 } from "framer-motion";
 import { Share2, ChevronDown, Check } from "lucide-react";
@@ -18,6 +18,7 @@ const INTRO_VH = 140;
 const LYRICS_PEEK_HEIGHT = 88;
 const LYRICS_REVEAL_VH_MIN = 140;
 const LYRICS_REVEAL_VH_MAX = 240;
+const PHOTO_SPRING = { stiffness: 62, damping: 14, mass: 0.95 };
 
 const PHOTO_STACK_CONFIG: Record<
   number,
@@ -134,38 +135,21 @@ function PhotoStackItem({
   runwayVh: number;
   styles: typeof styles;
 }) {
-  const [revealed, setRevealed] = useState(false);
   const config = getPhotoStackConfig(total);
   const timing = config.photos[index] || config.photos[config.photos.length - 1];
   const { start, end } = photoProgressPoints(timing.atVh, timing.revealVh, runwayVh);
+  const settle = start + (end - start) * 0.78;
 
-  useMotionValueEvent(progress, "change", (v) => {
-    if (typeof v === "number" && v >= end) {
-      setRevealed(true);
-    }
-  });
-
-  const opacity = useTransform(progress, [start, end], [0, 1]);
-  const scale = useTransform(progress, [start, end], [1.15, 1]);
-  const y = useTransform(progress, [start, end], [layout.y - 100, layout.y]);
-  const rotate = useTransform(progress, [start, end], [layout.rotate + 12, layout.rotate]);
-
-  if (revealed) {
-    return (
-      <PhotoStackItemVisual
-        src={src}
-        layout={layout}
-        style={{
-          opacity: 1,
-          scale: 1,
-          y: layout.y,
-          rotate: layout.rotate,
-          zIndex: index + 1,
-        }}
-        styles={s}
-      />
-    );
-  }
+  const opacity = useSpring(useTransform(progress, [start, end], [0, 1]), PHOTO_SPRING);
+  const scale = useSpring(useTransform(progress, [start, settle, end], [1.18, 0.985, 1]), PHOTO_SPRING);
+  const y = useSpring(
+    useTransform(progress, [start, settle, end], [layout.y - 118, layout.y + 7, layout.y]),
+    PHOTO_SPRING
+  );
+  const rotate = useSpring(
+    useTransform(progress, [start, settle, end], [layout.rotate + 15, layout.rotate - 1.6, layout.rotate]),
+    PHOTO_SPRING
+  );
 
   return (
     <PhotoStackItemVisual
